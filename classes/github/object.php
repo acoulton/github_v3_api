@@ -215,18 +215,32 @@ abstract class Github_Object
 						  ':class' => get_class($this)));
         }
         
-        // If the field exists but is not loaded, load the object from Github
-        if ( (! array_key_exists($field, $this->_data))
-             AND ( ! $this->_loaded))
-        {
-			// Cannot load the url field!
-			if ($field === 'url')
+        // Check that the field exists
+        if ( ! array_key_exists($field, $this->_data))
+		{
+			// If not loaded, load from github
+			if ( ! $this->_loaded)
 			{
-				throw new Exception("Cannot lazily load without populating a url");
+				// Cannot load the url field!
+				if ($field === 'url')
+				{
+					throw new Github_Exception_MissingURL(
+							"Could not lazily load property :property from class :class without an explicit url",
+							array(':class'=>get_class($this),
+								':property'=>$field));
+				}
+				$this->load();
 			}
-			
-            $this->load();
-        }        
+			else
+			{
+				// Exception if class is loaded and field not present
+				throw new Github_Exception_MissingProperty(
+						"Property :property missing from :class loaded from :url",
+						array(':class'=>get_class($this),
+							':property'=>$field,
+							':url'=>$this->_data['url']));
+			}
+		}
 		
         // Return the field's value
         return $this->_data[$field];        

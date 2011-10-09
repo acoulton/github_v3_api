@@ -82,13 +82,44 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$this->mock_github->expects($this->once())
 				->method('api_json')
-				->with('my/mock/foo',
-					   'GET')
+				->with('my/mock/foo','GET')
 				->will($this->returnValue(
 						array('url'=>'my/mock/foo',
 							  'field_1'=>'loaded')));
 		
 		$this->assertEquals('loaded', $foo->field_1);
+	}
+	
+	/**
+	 * @expectedException Github_Exception_MissingProperty
+	 */
+	public function test_loaded_object_is_not_reloaded_for_missing_property()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array(
+					'url' => 'my/mock/foo',
+				));
+		
+		$this->mock_github->expects($this->once())
+				->method('api_json')
+				->with('my/mock/foo', 'GET')
+				->will($this->returnValue(
+						array('url'=>'my/mock/foo')));
+		
+		$foo->load();
+		
+		$test = $foo->field_1;				
+	}
+	
+	/**
+	 * @expectedException Github_Exception_MissingURL
+	 */
+	public function test_object_cannot_lazily_load_url()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array());
+		
+		$test = $foo->field_1;
 	}
 		
 }
