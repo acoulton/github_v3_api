@@ -60,6 +60,14 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertInstanceOf('Github_Object_Bar', $foo->bar);
 	}
 	
+	public function test_null_object_fields_are_null()
+	{
+		$foo = new Github_Object_Foo($this->mock_github, 
+				array('bar'=>null));
+		
+		$this->assertNull($foo->bar);
+	}
+	
 	public function test_loaded_fields_do_not_trigger_loading()
 	{
 		$foo = new Github_Object_Foo($this->mock_github,
