@@ -267,6 +267,18 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$this->assertEquals(true, $foo->modified());
 	}
+	
+	public function test_reloaded_objects_are_not_modified()
+	{
+		$foo = $this->_get_foo();
+		
+		$foo->writeable_field = 'bar';
+		$foo->reload_data(array(
+			'field_1' => true
+			));
+		
+		$this->assertEquals(false, $foo->modified());
+	}
 			
 }
 
