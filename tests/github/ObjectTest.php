@@ -30,6 +30,35 @@ class Github_ObjectTest extends Unittest_TestCase
 		return new Github_Object_Foo($this->mock_github, $data);
 	}
 	
+	/**
+	 * Convenience method to note that method should not call API
+	 */
+	protected function assert_should_not_call_api()
+	{
+		$this->mock_github->expects($this->never())
+				->method('api');
+		$this->mock_github->expects($this->never())
+				->method('api_json');
+	}
+	
+	/**
+	 * Convenience method to expect an API call and setup response
+	 * @param string $url
+	 * @param array $return_data
+	 * @param string $method
+	 * @param boolean $json 
+	 */
+	protected function assert_should_call_api($url, $return_data, $method = 'GET', $json = true)
+	{
+		$api_method = $json ? 'api_json' : 'api';
+		
+		$this->mock_github->expects($this->once())
+				->method($api_method)
+				->with($url,$method)
+				->will($this->returnValue($return_data));
+	}
+
+	
 	public function setUp()
 	{
 		parent::setUp();
@@ -76,6 +105,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_constructor_populates_object_data()
 	{
+		$this->assert_should_not_call_api();
 		$foo = $this->_get_foo(array(
 					'url' => 'my/mock/foo',
 					'field_1' => 'bar',
@@ -83,7 +113,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$this->assertEquals('my/mock/foo', $foo->url);
 		$this->assertEquals('bar', $foo->field_1);
-		$this->assertEquals('test', $foo->writeable_field);
+		$this->assertEquals('test', $foo->writeable_field);		
 	}
 
 	
@@ -91,6 +121,9 @@ class Github_ObjectTest extends Unittest_TestCase
 	{
 		$foo = $this->_get_foo(array(
 			'field_1'=>'bar'));
+		
+		$this->assert_should_not_call_api();
+		
 		$this->assertEquals('bar',$foo->field_1);
 	}
 	
@@ -117,10 +150,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo = $this->_get_foo(array(
 			'field_1' => 'bar'));
 		
-		$this->mock_github->expects($this->never())
-					 ->method('api_json');
-		$this->mock_github->expects($this->never())
-					->method('api');
+		$this->assert_should_not_call_api();
 		
 		$test = $foo->field_1;		
 	}
@@ -129,13 +159,10 @@ class Github_ObjectTest extends Unittest_TestCase
 	{
 		$foo = $this->_get_foo(array(
 					'url' => 'my/mock/foo'));
-		
-		$this->mock_github->expects($this->once())
-				->method('api_json')
-				->with('my/mock/foo','GET')
-				->will($this->returnValue(
-						array('url'=>'my/mock/foo',
-							  'field_1'=>'loaded')));
+
+		$this->assert_should_call_api('my/mock/foo',
+				array('url'=>'my/mock/foo',
+					  'field_1'=>'loaded'));
 		
 		$this->assertEquals('loaded', $foo->field_1);
 	}
@@ -147,12 +174,9 @@ class Github_ObjectTest extends Unittest_TestCase
 	{
 		$foo = $this->_get_foo(array(
 				'url' => 'my/mock/foo'));
-		
-		$this->mock_github->expects($this->once())
-				->method('api_json')
-				->with('my/mock/foo', 'GET')
-				->will($this->returnValue(
-						array('url'=>'my/mock/foo')));
+				
+		$this->assert_should_call_api('my/mock/foo',
+				array('url'=>'my/mock/foo'));
 		
 		$foo->load();
 		
@@ -165,6 +189,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	public function test_object_cannot_lazily_load_url()
 	{
 		$foo = $this->_get_foo();
+		$this->assert_should_not_call_api();
 		$test = $foo->field_1;
 	}
 	
@@ -173,11 +198,8 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo = $this->_get_foo(array(
 			'url'=>'my/mock/foo'));
 		
-		$this->mock_github->expects($this->once())
-				->method('api_json')
-				->with('my/mock/foo', 'GET')
-				->will($this->returnValue(
-						array('url'=>'my/mock/foo')));
+		$this->assert_should_call_api('my/mock/foo',
+						array('url'=>'my/mock/foo'));
 		
 		$this->assertEquals(false, $foo->loaded());
 		
@@ -191,10 +213,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo = $this->_get_foo(array(
 			'url'=>'my/mock/foo'));
 		
-		$this->mock_github->expects($this->once())
-				->method('api')
-				->with('my/mock/foo', 'DELETE')
-				->will($this->returnValue(null));
+		$this->assert_should_call_api('my/mock/foo', null, 'DELETE', false);
 		
 		$foo->delete();
 	}
@@ -206,6 +225,8 @@ class Github_ObjectTest extends Unittest_TestCase
 	{
 		$foo = $this->_get_foo(array(
 			'field_1'=>'test'));
+		
+		$this->assert_should_not_call_api();
 		$foo->delete();
 	}
 
