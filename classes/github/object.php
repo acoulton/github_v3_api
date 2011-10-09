@@ -330,8 +330,9 @@ abstract class Github_Object
 				'PATCH', 
 				$data);
 		
-		// Update our own data
-		$this->reload_data($new_data);		
+		// Update our own data and mark as loaded
+		$this->reload_data($new_data);
+		$this->_loaded = true;
 		return true;
 	}
 	

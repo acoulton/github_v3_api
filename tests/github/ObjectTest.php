@@ -47,14 +47,15 @@ class Github_ObjectTest extends Unittest_TestCase
 	 * @param array $return_data
 	 * @param string $method
 	 * @param boolean $json 
+	 * @param array $body_data
 	 */
-	protected function assert_should_call_api($url, $return_data, $method = 'GET', $json = true)
+	protected function assert_should_call_api($url, $return_data, $method = 'GET', $json = true, $body_data = null)
 	{
 		$api_method = $json ? 'api_json' : 'api';
 		
 		$this->mock_github->expects($this->once())
 				->method($api_method)
-				->with($url,$method)
+				->with($url,$method, $body_data)
 				->will($this->returnValue($return_data));
 	}
 
@@ -319,6 +320,74 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertEquals('test', $foo->bar->bar_field);
 	}
 	
+	/**
+	 * @expectedException Github_Exception_MissingURL
+	 */
+	public function test_cannot_save_object_without_url()
+	{
+		$foo = $this->_get_foo(array(
+			'field_1'=>'test'));
+		$foo->writeable_field = 'bar';
+		
+		$this->assert_should_not_call_api();
+		$foo->save();
+	}
+	
+	
+	public function test_unchanged_object_does_not_save()
+	{
+		$foo = $this->_get_foo();
+		
+		$this->assert_should_not_call_api();
+		$foo->save();
+	}
+	
+	public function test_saved_object_is_loaded_and_not_modified()
+	{
+		$foo = $this->_get_foo(array(
+			'url' => 'my/mock/foo'));
+		
+		$foo->writeable_field = 'bar';
+		
+		$this->assert_should_call_api('my/mock/foo',
+				array('url'=>'my/mock/foo'), 'PATCH', true,
+				array('writeable_field'=>'bar'));
+		
+		$foo->save();		
+		$this->assertTrue($foo->loaded());
+		$this->assertFalse($foo->modified());
+	}
+	
+	public function test_only_modified_fields_are_saved()
+	{
+		$foo = $this->_get_foo(array(
+			'url' => 'my/mock/foo',
+			'writeable_field' => 'test'));
+		$foo->writeable_field_2 = 'test_2';
+		
+		$this->assert_should_call_api('my/mock/foo',
+				array('url'=>'my/mock/foo'),'PATCH', true, array(
+					'writeable_field_2' => 'test_2'
+				));
+		
+		$foo->save();
+	}
+	
+	public function test_modified_data_is_transformed_on_save()
+	{
+		$foo = $this->_get_foo(array(
+			'url' => 'my/mock/foo'
+		));
+		
+		$foo->writeable_field = 'transform_me';
+		
+		$this->assert_should_call_api('my/mock/foo',
+				array('url'=>'my/mock/foo'),'PATCH', true,
+				array('writeable_field'=>'transformed'));
+		
+		$foo->save();
+		
+	}
 }
 
 
@@ -328,8 +397,18 @@ class Github_Object_Foo extends Github_Object
 		'url' => null,
 		'bar' => 'Github_Object_Bar',
 		'field_1' => null,
-		'writeable_field' => true		
+		'writeable_field' => true,
+		'writeable_field_2' => true
 	);
+	
+	protected function _transform_modified(&$data)
+	{
+		if (isset($data['writeable_field'])
+			AND ($data['writeable_field'] === 'transform_me'))
+		{
+			$data['writeable_field'] = 'transformed';
+		}
+	}
 }
 
 class Github_Object_Bar extends Github_Object
