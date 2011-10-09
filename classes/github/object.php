@@ -96,7 +96,7 @@ abstract class Github_Object
         {			
             if (array_key_exists($field, $data))
             {
-                if ($type === null)
+                if (($type === null) OR ($type === true))
                 {
 					// Store a scalar value
                     $this->_data[$field] = $data[$field];
@@ -255,7 +255,30 @@ abstract class Github_Object
 	 */
 	public function __set($field, $value)
 	{
-		throw new Exception("Don't know how to set $field:$value");
+		// Validate that the requested field exists
+        if ( ! array_key_exists($field, $this->_fields))
+        {
+            throw new Github_Exception_InvalidProperty(
+					"No such property :field in :class",
+					array(':field'=>$field,
+						  ':class' => get_class($this)));
+        }
+		
+		// Check that the field is writeable
+		if ( $this->_fields[$field] !== true)
+		{
+			throw new Github_Exception_ReadOnlyProperty(
+					"Readonly property :property in :class could not be set to :value",
+					array(
+						':property' => $field,
+						':class' => get_class($this),
+						':value' => $value
+					));
+		}
+		
+		// Set the value
+		$this->_data[$field] = $value;
+		$this->_modified = true;
 	}
 	
 	/**

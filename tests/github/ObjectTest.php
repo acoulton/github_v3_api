@@ -26,7 +26,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->mock_github = $this->getMock('Github', array('api', 'api_json'));	
 	}
 
-	public function test_unknown_fields_raise_exception()
+	public function test_reading_unknown_fields_raises_exception()
 	{				
 		$foo = new Github_Object_Foo($this->mock_github, array());
 		
@@ -44,6 +44,39 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$this->fail('Expected Github_Exception_InvalidProperty was not thrown');
 	}
+	
+	public function test_writing_unknown_fields_raises_exception()
+	{
+		$foo = new Github_Object_Foo($this->mock_github, array());
+		
+		try
+		{
+			$foo->unknown_field = 'bar';
+		}
+		catch (Github_Exception_InvalidProperty $e)
+		{			
+			$msg = $e->getMessage();
+			$this->assertContains('unknown_field', $msg);
+			$this->assertContains('Github_Object_Foo', $msg);
+			return;
+		}
+		
+		$this->fail('Expected Github_Exception_InvalidProperty was not thrown');		
+	}
+	
+	public function test_constructor_populates_object_data()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array(
+					'url' => 'my/mock/foo',
+					'field_1' => 'bar',
+					'writeable_field' => 'test'));
+		
+		$this->assertEquals('my/mock/foo', $foo->url);
+		$this->assertEquals('bar', $foo->field_1);
+		$this->assertEquals('test', $foo->writeable_field);
+	}
+
 	
 	public function test_known_fields_are_returned()
 	{
@@ -141,12 +174,74 @@ class Github_ObjectTest extends Unittest_TestCase
 				->will($this->returnValue(
 						array('url'=>'my/mock/foo')));
 		
+		$this->assertEquals(false, $foo->loaded());
+		
 		$foo->load();
+		
 		$this->assertEquals(true, $foo->loaded());
 	}
 	
-	
+	public function test_object_can_delete()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array('url'=>'my/mock/foo'));
 		
+		$this->mock_github->expects($this->once())
+				->method('api')
+				->with('my/mock/foo', 'DELETE')
+				->will($this->returnValue(null));
+		
+		$foo->delete();
+	}
+	
+	/**
+	 * @expectedException Github_Exception_MissingURL
+	 */
+	public function test_cannot_delete_object_without_url()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array('field_1'=>'test'));
+		$foo->delete();
+	}
+
+	public function test_read_only_fields_cannot_be_set()
+	{
+		$foo = new Github_Object_Foo($this->mock_github, array());
+		
+		try
+		{
+			$foo->field_1 = 'bar';
+		}
+		catch (Github_Exception_ReadOnlyProperty $e)
+		{
+			$msg = $e->getMessage();
+			$this->assertContains('field_1', $msg);
+			$this->assertContains('Github_Object_Foo', $msg);
+			$this->assertContains('bar', $msg);
+			return;
+		}
+		
+		$this->fail('Expected exception Github_Exception_ReadOnlyProperty was not thrown');
+	}
+	
+	public function test_writeable_fields_are_set()
+	{
+		$foo = new Github_Object_Foo($this->mock_github, array());
+		$foo->writeable_field = 'bar';
+		$this->assertEquals('bar', $foo->writeable_field);		
+	}
+	
+	public function test_changed_objects_are_modified()
+	{
+		$foo = new Github_Object_Foo($this->mock_github, array());
+		
+		$this->assertEquals(false, $foo->modified());
+		
+		$foo->writeable_field = 'bar';
+		
+		$this->assertEquals(true, $foo->modified());
+	}
+			
 }
 
 
@@ -155,7 +250,8 @@ class Github_Object_Foo extends Github_Object
 	protected $_fields = array(
 		'url' => null,
 		'bar' => 'Github_Object_Bar',
-		'field_1' => null
+		'field_1' => null,
+		'writeable_field' => true		
 	);
 }
 
