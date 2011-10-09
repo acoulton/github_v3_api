@@ -287,6 +287,22 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertFalse($foo->modified());
 	}
 			
+	public function test_as_array_returns_scalar_data()
+	{
+		$this->assert_should_not_call_api();
+		$data = array(
+			'url' => 'my/mock/foo',
+			'field_1' => true,
+			'writeable_field' => true,
+			'bar' => array(
+				'bar_field' => 'test'
+			));
+		
+		$foo = $this->_get_foo($data);
+		
+		$this->assertEquals($data, $foo->as_array());
+	}
+	
 }
 
 
