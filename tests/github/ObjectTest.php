@@ -116,7 +116,6 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertEquals('bar', $foo->field_1);
 		$this->assertEquals('test', $foo->writeable_field);		
 	}
-
 	
 	public function test_known_fields_are_returned()
 	{
@@ -319,6 +318,14 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertInstanceOf('Github_Object_Bar', $foo->bar);
 		$this->assertEquals('test', $foo->bar->bar_field);
 	}
+
+	/**
+	 * @expectedException Github_Exception_InvalidData
+	 */
+	public function test_does_not_accept_scalar_for_child_without_default()
+	{
+		$foo = $this->_get_foo(array('rebar'=>'bad'));		
+	}
 	
 	/**
 	 * @expectedException Github_Exception_MissingURL
@@ -396,6 +403,7 @@ class Github_Object_Foo extends Github_Object
 	protected $_fields = array(
 		'url' => null,
 		'bar' => 'Github_Object_Bar',
+		'rebar' => 'Github_Object_Rebar',
 		'field_1' => null,
 		'writeable_field' => true,
 		'writeable_field_2' => true
@@ -417,5 +425,12 @@ class Github_Object_Bar extends Github_Object
 	
 	protected $_fields = array(
 		'bar_field' => null
+	);
+}
+
+class Github_Object_Rebar extends Github_Object
+{
+	protected $_fields = array(
+		'rebar_field' => null
 	);
 }

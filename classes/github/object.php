@@ -82,12 +82,12 @@ abstract class Github_Object
 			{
 				$data = array($this->_default_field => $data);
 			}
-			else
+			else				
 			{
-				//EXCEPTION
-				print_r(get_class($this));
-				print_r($data);
-				exit("bad data");
+				throw new Github_Exception_InvalidData(
+						"Cannot set :class data to scalar value :value without a default field",
+						array(':class'=>get_class($this),
+							':value'=>$data));
 			}
 		}
 
