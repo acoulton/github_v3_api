@@ -129,6 +129,23 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$test = $foo->field_1;
 	}
+	
+	public function test_loading_sets_loaded()
+	{
+		$foo = new Github_Object_Foo($this->mock_github,
+				array('url'=>'my/mock/foo'));
+		
+		$this->mock_github->expects($this->once())
+				->method('api_json')
+				->with('my/mock/foo', 'GET')
+				->will($this->returnValue(
+						array('url'=>'my/mock/foo')));
+		
+		$foo->load();
+		$this->assertEquals(true, $foo->loaded());
+	}
+	
+	
 		
 }
 
