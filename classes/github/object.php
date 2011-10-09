@@ -276,6 +276,13 @@ abstract class Github_Object
 					));
 		}
 		
+		// Check if the value has changed
+		if (array_key_exists($field, $this->_data)
+				AND ($this->_data[$field] === $value))
+		{
+			return;
+		}
+		
 		// Set the value
 		$this->_data[$field] = $value;
 		$this->_modified = true;

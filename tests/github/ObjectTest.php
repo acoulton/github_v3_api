@@ -279,6 +279,13 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$this->assertEquals(false, $foo->modified());
 	}
+	
+	public function test_setting_unchanged_values_does_not_modify()
+	{
+		$foo = $this->_get_foo(array('writeable_field'=>'bar'));
+		$foo->writeable_field = 'bar';
+		$this->assertFalse($foo->modified());
+	}
 			
 }
 
