@@ -286,6 +286,13 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo->writeable_field = 'bar';
 		$this->assertFalse($foo->modified());
 	}
+	
+	public function test_modified_fields_are_tracked()
+	{
+		$foo = $this->_get_foo();
+		$foo->writeable_field = 'bar';		
+		$this->assertEquals(array('writeable_field'), $foo->modified_fields());
+	}
 			
 	public function test_as_array_returns_scalar_data()
 	{

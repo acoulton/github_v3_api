@@ -285,7 +285,7 @@ abstract class Github_Object
 		
 		// Set the value
 		$this->_data[$field] = $value;
-		$this->_modified = true;
+		$this->_modified[] = $field;
 	}
 	
 	/**
@@ -351,6 +351,15 @@ abstract class Github_Object
 	public function modified()
 	{
 		return $this->_modified ? true : false;
+	}
+	
+	/**
+	 * The names of the modified fields
+	 * @return array
+	 */
+	public function modified_fields()
+	{
+		return $this->_modified;
 	}
 	
 }
