@@ -303,6 +303,15 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assertEquals($data, $foo->as_array());
 	}
 	
+	public function test_scalar_value_populates_child_default_field()
+	{
+		$foo = $this->_get_foo(array('bar'=>'test'));
+		
+		$this->assert_should_not_call_api();
+		$this->assertInstanceOf('Github_Object_Bar', $foo->bar);
+		$this->assertEquals('test', $foo->bar->bar_field);
+	}
+	
 }
 
 
@@ -318,6 +327,8 @@ class Github_Object_Foo extends Github_Object
 
 class Github_Object_Bar extends Github_Object
 {
+	protected $_default_field = 'bar_field';
+	
 	protected $_fields = array(
 		'bar_field' => null
 	);
