@@ -20,6 +20,16 @@ class Github_ObjectTest extends Unittest_TestCase
 	 */
 	protected $mock_github = null;
 	
+	/**
+	 * Convenience method to get a new Foo object for testing
+	 * @param array $data
+	 * @return Github_Object_Foo
+	 */
+	protected function _get_foo($data = array())
+	{
+		return new Github_Object_Foo($this->mock_github, $data);
+	}
+	
 	public function setUp()
 	{
 		parent::setUp();
@@ -27,8 +37,8 @@ class Github_ObjectTest extends Unittest_TestCase
 	}
 
 	public function test_reading_unknown_fields_raises_exception()
-	{				
-		$foo = new Github_Object_Foo($this->mock_github, array());
+	{	
+		$foo = $this->_get_foo();
 		
 		try
 		{
@@ -47,7 +57,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_writing_unknown_fields_raises_exception()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, array());
+		$foo = $this->_get_foo();
 		
 		try
 		{
@@ -66,8 +76,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_constructor_populates_object_data()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array(
+		$foo = $this->_get_foo(array(
 					'url' => 'my/mock/foo',
 					'field_1' => 'bar',
 					'writeable_field' => 'test'));
@@ -80,31 +89,33 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_known_fields_are_returned()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, array('field_1'=>'bar'));
+		$foo = $this->_get_foo(array(
+			'field_1'=>'bar'));
 		$this->assertEquals('bar',$foo->field_1);
 	}
 	
 	public function test_object_fields_are_instantiated()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, 
-				array('bar'=>array(
+		$foo = $this->_get_foo(array(
+				'bar'=>array(
 					'bar_field' => 'foo'
 				)));
+		
 		$this->assertInstanceOf('Github_Object_Bar', $foo->bar);
 	}
 	
 	public function test_null_object_fields_are_null()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, 
-				array('bar'=>null));
+		$foo = $this->_get_foo(array(
+			'bar'=>null));
 		
 		$this->assertNull($foo->bar);
 	}
 	
 	public function test_loaded_fields_do_not_trigger_loading()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array('field_1' => 'bar'));
+		$foo = $this->_get_foo(array(
+			'field_1' => 'bar'));
 		
 		$this->mock_github->expects($this->never())
 					 ->method('api_json');
@@ -116,10 +127,8 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_empty_fields_trigger_load()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array(
-					'url' => 'my/mock/foo'
-				));
+		$foo = $this->_get_foo(array(
+					'url' => 'my/mock/foo'));
 		
 		$this->mock_github->expects($this->once())
 				->method('api_json')
@@ -136,10 +145,8 @@ class Github_ObjectTest extends Unittest_TestCase
 	 */
 	public function test_loaded_object_is_not_reloaded_for_missing_property()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array(
-					'url' => 'my/mock/foo',
-				));
+		$foo = $this->_get_foo(array(
+				'url' => 'my/mock/foo'));
 		
 		$this->mock_github->expects($this->once())
 				->method('api_json')
@@ -157,16 +164,14 @@ class Github_ObjectTest extends Unittest_TestCase
 	 */
 	public function test_object_cannot_lazily_load_url()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array());
-		
+		$foo = $this->_get_foo();
 		$test = $foo->field_1;
 	}
 	
 	public function test_loading_sets_loaded()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array('url'=>'my/mock/foo'));
+		$foo = $this->_get_foo(array(
+			'url'=>'my/mock/foo'));
 		
 		$this->mock_github->expects($this->once())
 				->method('api_json')
@@ -183,8 +188,8 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_object_can_delete()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array('url'=>'my/mock/foo'));
+		$foo = $this->_get_foo(array(
+			'url'=>'my/mock/foo'));
 		
 		$this->mock_github->expects($this->once())
 				->method('api')
@@ -199,14 +204,14 @@ class Github_ObjectTest extends Unittest_TestCase
 	 */
 	public function test_cannot_delete_object_without_url()
 	{
-		$foo = new Github_Object_Foo($this->mock_github,
-				array('field_1'=>'test'));
+		$foo = $this->_get_foo(array(
+			'field_1'=>'test'));
 		$foo->delete();
 	}
 
 	public function test_read_only_fields_cannot_be_set()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, array());
+		$foo = $this->_get_foo();
 		
 		try
 		{
@@ -226,14 +231,14 @@ class Github_ObjectTest extends Unittest_TestCase
 	
 	public function test_writeable_fields_are_set()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, array());
+		$foo = $this->_get_foo();
 		$foo->writeable_field = 'bar';
 		$this->assertEquals('bar', $foo->writeable_field);		
 	}
 	
 	public function test_changed_objects_are_modified()
 	{
-		$foo = new Github_Object_Foo($this->mock_github, array());
+		$foo = $this->_get_foo();
 		
 		$this->assertEquals(false, $foo->modified());
 		
