@@ -153,6 +153,15 @@ class Github_APITest extends Unittest_TestCase
 		$this->assertEquals($expect_request_body, $github->_test_last_request->body());
 		$this->assertEquals($request_content_type, $github->_test_last_request->headers('Content-type'));
 	}
+	
+	public function test_can_specify_response_content_type()
+	{
+		$github = new Mock_Github();
+		$github->api('/dummy', 'GET', null, array('response_content_type'=>'application/dummy.content'));
+		
+		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
+		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
+	}
 
 }
 

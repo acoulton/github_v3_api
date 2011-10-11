@@ -70,7 +70,8 @@ class Github
 				$options);
 		
 		$request_content_type = $options['request_content_type'];
-		$response_content_type = $options['response_content_type'];		
+		$response_content_type = $options['response_content_type'];
+		
 		// Create the request
 		$request = $this->_new_request($url)
 					->method($method);
@@ -84,6 +85,9 @@ class Github
 		{
 			$request->body($body);
 		}
+		
+		// Set up headers
+		$request->headers('Accept', $response_content_type);
 		$request->headers('Content-type', $request_content_type);
 		// Setup the authentication info
 		$request->headers('Authorization', 'Basic ' . base64_encode("{$_SERVER['gh_user']}:{$_SERVER['gh_pwd']}"));
