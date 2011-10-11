@@ -185,6 +185,26 @@ class Github_APITest extends Unittest_TestCase
 		$github->api('/dummy',$method);
 		$this->assertEquals($method, $github->_test_last_request->method());
 	}
+	
+	public function test_response_headers_are_available()
+	{
+		$test_header = array('X-test-header'=>'test');
+		$github = $this->_prepare_github(null, 200, $test_header);
+
+		// Should be null before a request
+		$this->assertEquals(null, $github->api_response_headers());
+		
+		$github->api('/dummy');
+	
+		// Should make the headers available after a request
+		$headers = $github->api_response_headers();
+		$this->assertEquals($test_header, $github->api_response_headers()->getArrayCopy());
+		
+		// And following a new request, headers should be reset
+		$github->_test_prepare_response();
+		$github->api('/dummy');
+		$this->assertEquals(array(), $github->api_response_headers()->getArrayCopy());
+	}
 
 }
 
