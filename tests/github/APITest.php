@@ -162,6 +162,29 @@ class Github_APITest extends Unittest_TestCase
 		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
 		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
 	}
+	
+	public function provider_can_specify_request_method()
+	{
+		return array(
+			array('GET',200),
+			array('POST',201),
+			array('PUT',200),
+			array('PATCH',200),
+			array('DELETE',204)
+		);
+	}
+	
+	/**
+	 * @dataProvider provider_can_specify_request_method
+	 * @param string $method
+	 * @param string $response_status 
+	 */
+	public function test_can_specify_request_method($method, $response_status)
+	{
+		$github = $this->_prepare_github(null, $response_status);
+		$github->api('/dummy',$method);
+		$this->assertEquals($method, $github->_test_last_request->method());
+	}
 
 }
 
