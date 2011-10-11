@@ -26,6 +26,16 @@ class Github
 			);
 	
 	/**
+	 * Internal method to get a new Request object, to allow extension for testability
+	 * @param string $url
+	 * @return Request 
+	 */
+	protected function _new_request($url)
+	{
+		return Request::factory($url);
+	}
+	
+	/**
 	 * Wraps a raw call to the Github API, including setting up authentication
 	 * and checking for a valid response. See also [Github::api_json] which adds
 	 * a further layer to decode a JSON response to an array.
@@ -60,14 +70,11 @@ class Github
 				$options);
 		
 		$request_content_type = $options['request_content_type'];
-		$response_content_type = $options['response_content_type'];
-		
+		$response_content_type = $options['response_content_type'];		
 		// Create the request
-		$request = Request::factory($url)
+		$request = $this->_new_request($url)
 					->method($method);
-		
-		echo "-- $method $url\r\n";
-		
+				
 		// Set up the body
 		if (($request_content_type == 'application/json') AND is_array($body))
 		{
@@ -78,10 +85,8 @@ class Github
 			$request->body($body);
 		}
 		$request->headers('Content-type', $request_content_type);
-		
 		// Setup the authentication info
-		$request->headers('Authorization', 'Basic ' . base64_encode("{$_ENV['gh_user']}:{$_ENV['gh_pwd']}"));
-		$request->client()->options(CURLOPT_CAINFO,'c:\windows\system32\curl-ca-bundle.crt');
+		$request->headers('Authorization', 'Basic ' . base64_encode("{$_SERVER['gh_user']}:{$_SERVER['gh_pwd']}"));
 		
 		// Execute the request
 		$response = $request->execute();
@@ -92,7 +97,11 @@ class Github
 		
 		if ($status != $options['expect_status'])
 		{
-			throw new Kohana_Exception("Error! Code $status - {$response->body()}");
+			throw new Github_Exception_BadHTTPResponse("Unexpected :actual response from :url with message :message - expected :expected",
+					array(':actual'=>$status,
+						':url'=>$url,
+						':expected'=>$options['expect_status'],
+						':message'=>$response->body()));			
 		}
 		
 		return $response;
