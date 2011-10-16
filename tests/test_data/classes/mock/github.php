@@ -28,6 +28,11 @@ class Mock_Github extends Github
 	 */
 	public function _test_prepare_response($response_body = null, $response_status = '200', $response_headers = array())
 	{
+		if (is_array($response_body))
+		{
+			$response_body = json_encode($response_body);
+		}
+		
 		$this->_test_response_data['body'] = $response_body;
 		$this->_test_response_data['status'] = $response_status;
 		$this->_test_response_data['headers'] = $response_headers;
