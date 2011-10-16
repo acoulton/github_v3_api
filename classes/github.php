@@ -18,6 +18,9 @@ class Github
 	protected $_rate_limit = null;
 	protected $_rate_limit_remaining = null;
 	
+	protected $_auth_mode = null;
+	protected $_auth_credential = null;
+	
 	protected $_response_headers = null;
 	
     protected $_repos = array();
@@ -118,8 +121,12 @@ class Github
 		// Set up headers
 		$request->headers('Accept', $response_content_type);
 		$request->headers('Content-type', $request_content_type);
-		// Setup the authentication info
-		$request->headers('Authorization', 'Basic ' . base64_encode("{$_SERVER['gh_user']}:{$_SERVER['gh_pwd']}"));
+		
+		// Authenticate if credentials are set
+		if ($this->_auth_mode !== null)
+		{
+			$request->headers('Authorization', "$this->_auth_mode $this->_auth_credential");
+		}
 		
 		// Execute the request
 		$response = $request->execute();
@@ -134,11 +141,21 @@ class Github
 		
 		if ($status != $options['expect_status'])
 		{
-			throw new Github_Exception_BadHTTPResponse("Unexpected :actual response from :url with message :message - expected :expected",
-					array(':actual'=>$status,
-						':url'=>$url,
-						':expected'=>$options['expect_status'],
-						':message'=>$response->body()));			
+			switch ($status)
+			{
+				case '401':
+					throw new Github_Exception_Unauthorized(
+							"Not authorised to access :url - message :message", 
+							array(':url'=>$url,
+								':message'=>$response->body()));
+				default:
+					throw new Github_Exception_BadHTTPResponse(
+							"Unexpected :actual response from :url with message :message - expected :expected",
+						array(':actual'=>$status,
+							':url'=>$url,
+							':expected'=>$options['expect_status'],
+							':message'=>$response->body()));			
+			}
 		}
 		
 		return $response;
@@ -149,6 +166,18 @@ class Github
 	{
 		$this->_rate_limit = null;
 		$this->_rate_limit_remaining = null;		
+	}
+	
+	public function api_authenticate_basic($user, $pwd)
+	{
+		$this->_auth_mode='Basic';
+		$this->_auth_credential = base64_encode("$user:$pwd");
+	}
+	
+	public function api_authenticate_oauth($token)
+	{
+		$this->_auth_mode='token';
+		$this->_auth_credential = $token;
 	}
 	    
 	/**

@@ -262,6 +262,41 @@ class Github_APITest extends Unittest_TestCase
 		// Test that a new request was made		
 		$this->assertNotEquals($first_request, $github->_test_last_request);
 	}
+	
+	public function test_no_authentication_by_default()
+	{
+		$github = $this->_prepare_github();
+		$github->api('/dummy');
+		
+		$this->assertNull($github->_test_last_request->headers('Authorization'));
+	}
+	
+	/**
+	 * @expectedException Github_Exception_Unauthorized
+	 */
+	public function test_unauthorized_request_throws_exception()
+	{
+		$github = $this->_prepare_github(null, '401');
+		$github->api('/dummy');
+	}
+	
+	public function test_basic_authentication()
+	{
+		$github = $this->_prepare_github();
+		$github->api_authenticate_basic('test','pwd');
+		$github->api('/dummy');
+		
+		$this->assertEquals('Basic '.base64_encode('test:pwd'), $github->_test_last_request->headers('Authorization'));
+	}
+	
+	public function test_oauth_authentication()
+	{
+		$github = $this->_prepare_github();
+		$github->api_authenticate_oauth('foo');
+		$github->api('/dummy');
+		
+		$this->assertEquals('token foo', $github->_test_last_request->headers('Authorization'));
+	}
 
 }
 
