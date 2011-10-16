@@ -198,7 +198,7 @@ class Github_APITest extends Unittest_TestCase
 	
 		// Should make the headers available after a request
 		$headers = $github->api_response_headers();
-		$this->assertEquals($test_header, $github->api_response_headers()->getArrayCopy());
+		$this->assertEquals('test', $headers['X-test-header']);
 		
 		// And following a new request, headers should be reset
 		$github->_test_prepare_response();
@@ -259,7 +259,12 @@ class Mock_Github extends Github
 		$response = $this->_test_last_request->create_response();
 		$response->body($this->_test_response_data['body']);
 		$response->status($this->_test_response_data['status']);
-		$response->headers($this->_test_response_data['headers']);
+		
+		// Setting headers one by one ensures that keys are set lowercase
+		foreach ($this->_test_response_data['headers'] as $key=>$value)
+		{
+			$response->headers($key, $value);
+		}		
 		
 		// Configure the request to return the response
 		$this->_test_last_request->expects(new PHPUnit_Framework_MockObject_Matcher_InvokedCount(1))
