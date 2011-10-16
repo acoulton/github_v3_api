@@ -197,12 +197,22 @@ class Github
 	}
 	
 	/**
-	 * Returns the last headers received from the API
-	 * @return HTTP_Header
+	 * Returns the response headers from the most recent API request -
+	 * either the full set or, if a key is provided, a single header.
+	 * 
+	 * @param string $key
+	 * @return mixed
 	 */
-	public function api_response_headers()
+	public function api_response_headers($key = null)
 	{
-		return $this->_response_headers;
+		if ($key === null)
+		{
+			return $this->_response_headers;	
+		}
+		else
+		{
+			return Arr::get($this->_response_headers, $key);
+		}		
 	}
 	
 	/**

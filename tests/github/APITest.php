@@ -281,5 +281,14 @@ class Github_APITest extends Github_APITestBase
 		
 		$this->assertEquals('token foo', $github->_test_last_request->headers('Authorization'));
 	}
+	
+	public function test_individual_response_headers_available()
+	{
+		$github = $this->_prepare_github(null,200,array('Test-foo'=>'ok'));
+		$github->api('dummy');
+		
+		$this->assertEquals('ok', $github->api_response_headers('Test-foo'));
+		$this->assertNull($github->api_response_headers('Test-bar'));
+	}
 
 }
