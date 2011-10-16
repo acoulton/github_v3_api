@@ -205,6 +205,45 @@ class Github_APITest extends Unittest_TestCase
 		$github->api('/dummy');
 		$this->assertEquals(array(), $github->api_response_headers()->getArrayCopy());
 	}
+	
+	public function test_rate_limit_information_available()
+	{
+		$github = $this->_prepare_github(null, 200, array
+				('X-RateLimit-Limit'=> 5000,
+				 'X-RateLimit-Remaining'=>4966));
+		
+		$github->api('/dummy');
+		
+		$this->assertEquals(5000, $github->rate_limit);
+		$this->assertEquals(4966, $github->rate_limit_remaining);
+	}
+	
+	public function test_rate_limit_blocks_further_requests()
+	{
+		// Fake a request that represents the last for this rate limit
+		$github = $this->_prepare_github(null, 200, array
+				('X-RateLimit-Remaining'=>0));
+		
+		$github->api('/dummy');
+		
+		/*
+		 * For the next attempted request, the API should throw an exception
+		 * before trying to make a request.
+		 */
+		
+		$first_request = $github->_test_last_request;
+		try
+		{
+			$github->api('/dummy-second');
+		}
+		catch (Github_Exception_RateLimitExceeded $e)
+		{
+			$this->assertEquals($first_request, $github->_test_last_request);
+			return;
+		}
+		
+		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');	
+	}		
 
 }
 

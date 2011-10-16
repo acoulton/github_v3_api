@@ -8,10 +8,15 @@
  *     $user = $github->get_user()
  *				->load();
  * 
+ * @property integer $rate_limit The current API call rate limit (requests per hour)
+ * @property integer $rate_limit_remaining The number of requests remaining before the rate limit is exceeded
  */ 
 class Github
 {
 	public static $base_url = 'https://api.github.com/';
+	
+	protected $_rate_limit = null;
+	protected $_rate_limit_remaining = null;
 	
 	protected $_response_headers = null;
 	
@@ -24,6 +29,23 @@ class Github
 			'PATCH' => '200',
 			Request::DELETE => '204'
 			);
+	
+	/**
+	 * Accessor for read-only public properties
+	 * @param string $property 
+	 * @return mixed
+	 */
+	public function __get($property)
+	{
+		switch ($property)
+		{
+			case 'rate_limit':
+			case 'rate_limit_remaining':
+				$property = "_$property";
+				return $this->$property;
+		}
+	}
+	
 	
 	/**
 	 * Internal method to get a new Request object, to allow extension for testability
@@ -52,6 +74,13 @@ class Github
 	public function api($url, $method = Request::GET, 
 			$body = null, $options = array())
 	{
+		if ($this->_rate_limit_remaining === '0')
+		{
+			throw new Github_Exception_RateLimitExceeded("Github API rate limit of :limit requests per hour has been exceeded - could not make request to :url", 
+					array(':limit'=>$this->_rate_limit,
+						':url'=>$url));
+		}
+		
 		// Convert to an absolute url if required
 		if (strpos($url, '://') === FALSE)
 		{
@@ -95,6 +124,10 @@ class Github
 		// Execute the request
 		$response = $request->execute();
 		$this->_response_headers = $response->headers();
+		
+		// Process the rate limit information
+		$this->_rate_limit = $response->headers('X-RateLimit-Limit');	
+		$this->_rate_limit_remaining = $response->headers('X-RateLimit-Remaining');
 		
 		// Check for response status
 		$status = $response->status();		
