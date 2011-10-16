@@ -239,11 +239,29 @@ class Github_APITest extends Unittest_TestCase
 		catch (Github_Exception_RateLimitExceeded $e)
 		{
 			$this->assertEquals($first_request, $github->_test_last_request);
-			return;
+			return $github;
 		}
 		
 		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');	
 	}		
+	
+	/**
+	 * Once the API has triggered the rate limit block, the user should
+	 * be able to reset it. If the reset fails, this test would throw a
+	 * Github_Exception_RateLimitExceeded
+	 * 
+	 * @depends test_rate_limit_blocks_further_requests
+	 * @param Mock_Github $github 
+	 */
+	public function test_rate_limit_can_be_reset(Mock_Github $github)
+	{
+		$first_request = $github->_test_last_request;
+		$github->api_reset_rate_limit();		
+		$github->api('/dummy-third');
+		
+		// Test that a new request was made		
+		$this->assertNotEquals($first_request, $github->_test_last_request);
+	}
 
 }
 

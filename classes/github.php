@@ -144,6 +144,12 @@ class Github
 		return $response;
 		
 	}
+	
+	public function api_reset_rate_limit()
+	{
+		$this->_rate_limit = null;
+		$this->_rate_limit_remaining = null;		
+	}
 	    
 	/**
 	 * Sends an API call and decodes the result from JSON into an array
