@@ -10,7 +10,6 @@ class Github_Collection implements ArrayAccess, Iterator
 	protected $_page_size = 30;
 	protected $_items = array();
 	protected $_current_item = 0;
-	
 
 	/**
 	 * Creates a new Github_Collection object
@@ -103,7 +102,7 @@ class Github_Collection implements ArrayAccess, Iterator
 	protected function _parse_api_link_header()
 	{
 		$header = $this->_github->api_response_headers('Link');
-				
+		
 		if ( ! $header)
 		{
 			return 1;
@@ -147,11 +146,24 @@ class Github_Collection implements ArrayAccess, Iterator
 	}
 	
 	/**
-	 * Returns the number of items in the collection
+	 * Returns the number of items in the collection - if the
+	 * last page of results has not been loaded then this method
+	 * will load the count and reserve space. If the last page of
+	 * results has been loaded then the size of the collection is
+	 * returned.
 	 */
 	public function count()
 	{
-		if ($this->_page_count === null)
+		/**
+		 * - If nothing has been loaded, page_count will be null
+		 * - If some pages have been loaded, there will be some items in the 
+		 *    collection, but not the full number of pages worth
+		 * e.g. With 1 page of 30 items, min count is 1
+		 *		With 10 pages of 30 items, min count is 271
+		 */
+		$expect_min_count = (($this->_page_count - 1) * $this->_page_size) + 1;
+		if (($this->_page_count === null)
+			OR count($this->_items) < $expect_min_count)
 		{
 			// Get the number of items with a HEAD request
 			$this->_github->api(
@@ -160,13 +172,14 @@ class Github_Collection implements ArrayAccess, Iterator
 			$count = $this->_parse_api_link_header();
 			
 			// Store the number of pages and prepare the items array
-			$this->_page_count = floor($count / $this->_page_size);
+			$this->_page_count = ceil($count / $this->_page_size);
 			
 			for ($i = count($this->_items); $i < $count; $i++)
 			{
 				$this->_items[$i] = null;
 			}
-			
+						
+						
 		}		
 		return count($this->_items);
 	}

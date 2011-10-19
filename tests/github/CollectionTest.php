@@ -58,7 +58,7 @@ class Github_CollectionTest extends Github_APITestBase
 	 */
 	protected function _prepare_collection(&$github = null, $count=3, $headers = array(), $collection_params = array())
 	{
-		$github = $this->_prepare_github($this->_get_dummy_collection_data($count, 200, $headers));
+		$github = $this->_prepare_github($this->_get_dummy_collection_data($count), 200, $headers);
 		
 		$collection = new Github_Collection_PublishTestData($github, 'dummy', 'Github_Object_CollectionTest', $collection_params);
 				
@@ -130,9 +130,12 @@ class Github_CollectionTest extends Github_APITestBase
 	{
 		return array(
 			array(false, false, 10, 1, 'HEAD'),
-			array(false, true, 10, 1, 'GET'),
-			array(true, false, 312, 1, 'HEAD'),
-			array(true, true, 312, 2, 'HEAD')
+			array(false, 1, 30, 1, 'GET'),
+			array(true, false, 310, 1, 'HEAD'),
+			array(true, 1, 310, 2, 'HEAD'),
+			array(true, 9, 280, 2, 'HEAD'),
+			// Here the last page of results is loaded, so no count request is required
+			array(true, 10, 300, 1, 'GET')
 		);
 	}
 	
@@ -149,13 +152,13 @@ class Github_CollectionTest extends Github_APITestBase
 		{
 			$link = array();
 		}		
-			
+
 		// Prepare for the GET request (This will not always be sent)
-		$collection = $this->_prepare_collection($github, 10, $link);
+		$collection = $this->_prepare_collection($github, 30, $link);
 		
 		if ($load_results)
 		{
-			$collection->load();
+			$collection->load($load_results);
 		}
 		
 		// Prepare for a HEAD request
