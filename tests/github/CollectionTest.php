@@ -15,52 +15,163 @@
  */
 class Github_CollectionTest extends Github_APITestBase
 {
+	/**
+	 * Builds a dummy collection data array
+	 * @param integer $count Number of elements
+	 * @return array 
+	 */
+	protected function _get_dummy_collection_data($count)
+	{
+		for ($i = 1; $i <= $count; $i++)
+		{
+			$result[] = array(
+				'url' => "dummy/$i",
+			);
+		}
+		return $result;
+	}
+	
+	/**
+	 * Builds a link header for given types and numbering of pages
+	 * @param array $pages
+	 * @param integer $per_page
+	 * @param string $uri
+	 * @return array 
+	 */
+	protected function _get_link_header($pages, $per_page = 30, $uri = 'https://api.github.com/dummy')
+	{		
+		foreach ($pages as $page_type=>$page_num)
+		{
+			$result[] = "<$uri?page=$page_num&per_page=$per_page>; rel=\"$page_type\"";
+		}
+		return array('Link'=>implode(', ', $result));
+	}
+	
+	/**
+	 * Keeps the test methods DRY by standardising the setup of the 
+	 * collection and github objects.
+	 * 
+	 * @param integer $count
+	 * @param array $headers
+	 * @param Mock_Github $github
+	 * @return Github_Collection_PublishTestData 
+	 */
+	protected function _prepare_collection(&$github = null, $count=3, $headers = array(), $collection_params = array())
+	{
+		$github = $this->_prepare_github($this->_get_dummy_collection_data($count, 200, $headers));
+		
+		$collection = new Github_Collection_PublishTestData($github, 'dummy', 'Github_Object_CollectionTest', $collection_params);
+				
+		return $collection;
+	}
 
+	
 	public function test_does_not_automatically_submit_request()
 	{
-		$github = $this->_prepare_github();		
-		$collection = new Github_Collection($github, 'dummy', 'Github_Object');
+		$this->_prepare_collection($github);
 		$this->assertNull($github->_test_last_request);	
 	}
 	
 	public function test_adds_parameters_to_url()
 	{
-		$github = $this->_prepare_github();
-		$collection = new Github_Collection($github, 'dummy', 'Github_Object', array('test'=>'testing','t2'=>1));
-		$collection->load();
+		$collection = $this->_prepare_collection($github, 3, array(), 
+				array('test'=>'testing', 't2'=>1))
+				->load();
 		
 		$this->assertEquals('testing', $github->_test_last_request->query('test'));
 		$this->assertEquals('1', $github->_test_last_request->query('t2'));
 	}
 	
-	public function test_loads_page_count_from_headers()
+	public function test_can_set_page_size()
 	{
-		$github = $this->_prepare_github(null,200,
-				array('Link'=>'<https://api.github.com/repos?page=2&per_page=30>; rel="next", <https://api.github.com/repos?page=4&per_page=30>; rel="last"));'));
+		$collection = $this->_prepare_collection($github);
+		$collection->page_size(50);
+		$collection->load();
 		
+		$this->assertEquals(50, $github->_test_last_request->query('per_page'));
+		$this->assertEquals(50, $collection->page_size());
+	}
+	
+	public function provider_loads_page_count_from_headers()
+	{
+		return array(
+			array(1, $this->_get_dummy_collection_data(1), 200, array()),
+			array(4, null, 200, 
+				$this->_get_link_header(array('next'=>2, 'last'=>4))),
+		);
+	}
+	
+	/**
+	 * @dataProvider provider_loads_page_count_from_headers
+	 * @param integer $expect_pages
+	 * @param array $response
+	 * @param integer $status
+	 * @param array $headers 
+	 */
+	public function test_loads_page_count_from_headers($expect_pages, $response, $status, $headers)
+	{
+		$github = $this->_prepare_github($response, $status, $headers);		
 		$collection = new Github_Collection($github, 'dummy', 'Github_Object');
 		$collection->load();
 		
-		$this->assertEquals(4, $collection->page_count());		
+		$this->assertEquals($expect_pages, $collection->page_count());		
 	}
 	
-	protected function _prepare_simple_collection()
+	public function test_stores_single_page_result_count()
 	{
-		$github = $this->_prepare_github(array(
-					array('url' => 'dummy/1'),
-					array('url' => 'dummy/2'),
-					array('url' => 'dummy/3')));
+		$collection = $this->_prepare_collection($github, 2)
+						->load();
 		
-		$collection = new Github_Collection_PublishTestData($github, 'dummy', 'Github_Object_CollectionTest');
-		
-		return $collection;
+		$this->assertEquals(2, $collection->count());
+		$this->assertEquals(1, $github->_test_request_count);
 	}
 	
+	public function provider_provides_result_count()
+	{
+		return array(
+			array(false, false, 10, 1, 'HEAD'),
+			array(false, true, 10, 1, 'GET'),
+			array(true, false, 312, 1, 'HEAD'),
+			array(true, true, 312, 2, 'HEAD')
+		);
+	}
+	
+	/**
+	 * @dataProvider provider_provides_result_count
+	 */
+	public function test_provides_result_count($multi_page, $load_results, $expect_count, $expect_requests, $expect_method)
+	{
+		if ($multi_page)
+		{
+			$link = $this->_get_link_header(array('last'=>10));
+		}
+		else
+		{
+			$link = array();
+		}		
+			
+		// Prepare for the GET request (This will not always be sent)
+		$collection = $this->_prepare_collection($github, 10, $link);
+		
+		if ($load_results)
+		{
+			$collection->load();
+		}
+		
+		// Prepare for a HEAD request
+		$github->_test_prepare_response(null, 200,
+				$this->_get_link_header(array('last'=>$expect_count)));
+		
+		// Validate the item count and request information
+		$this->assertEquals($expect_count, $collection->count(), "Assert correct collection count");		
+		$this->assertEquals($expect_requests, $github->_test_request_count, "Assert expected number of requests");
+		$this->assertEquals($expect_method, $github->_test_last_request->method(), "Assert last request method");				
+	}
+		
 	public function test_loads_first_page()
 	{
-		$collection = $this->_prepare_simple_collection();
-		
-		$collection->load();
+		$collection = $this->_prepare_collection()
+							->load();
 		
 		// Access the internal storage for testing
 		$internal_items = $collection->_get_items();
@@ -70,8 +181,8 @@ class Github_CollectionTest extends Github_APITestBase
 	
 	public function test_reserves_space_for_earlier_pages_when_loading()
 	{
-		$collection = $this->_prepare_simple_collection();
-		$collection->load(2);	
+		$collection = $this->_prepare_collection()
+						->load(2);	
 		
 		// Access the internal storage for testing
 		$internal_items = $collection->_get_items();
@@ -110,7 +221,101 @@ class Github_CollectionTest extends Github_APITestBase
 		$this->assertEquals('dummy/1', $internal_items[0]['url']);
 		$this->assertEquals('dummy/2', $internal_items[31]['url']);
 		$this->assertEquals('dummy/3', $internal_items[62]['url']);
-	}	
+	}
+	
+	public function test_arrayaccess_returns_objects()
+	{
+		$collection = $this->_prepare_collection()
+						->load(1);
+		
+		$this->assertInstanceOf('Github_Object_CollectionTest', $collection[1]);			
+		$this->assertEquals('dummy/2', $collection[1]->url);		
+		return $collection;
+	}
+	
+	/**
+	 * @depends test_arrayaccess_returns_objects
+	 */
+	public function test_iterating_returns_objects($collection)
+	{		
+		foreach ($collection as $key => $object)
+		{			
+			$this->assertInstanceOf('Github_Object_CollectionTest', $object);
+			$this->assertEquals('dummy/1', $object->url);
+			$this->assertEquals('0', $key);
+			break;
+		}
+		
+		return $collection;
+	}
+
+	/**
+	 * @depends test_iterating_returns_objects
+	 */
+	public function test_objects_are_only_created_once($collection)
+	{
+		$object = $collection[2];
+		$object_2 = $collection[2];
+		
+		$this->assertEquals($object, $object_2);
+		
+		foreach ($collection as $key=>$object_3)
+		{
+			if ($key == 2)
+			{
+				$this->assertEquals($object, $object_3);
+			}			
+		}
+	}
+	
+	public function provider_all_items_are_iterable()
+	{
+		return array(5, 2);
+	}
+	
+	/**
+	 * @dataProvider provider_all_items_are_iterable
+	 * @param integer $count 
+	 */
+	public function test_all_items_are_iterable($count)
+	{
+		$collection = $this->_prepare_collection($github, $count)
+						->load();
+		
+		$i = 0;
+		foreach ($collection as $key => $item)
+		{
+			$this->assertEquals($i, $key);
+			$i++;
+		}
+		$this->assertEquals($count, $i);
+	}
+	
+	/**
+	 * @dataProvider provider_all_items_are_iterable
+	 */
+	public function test_all_items_are_accessible($count)
+	{
+		
+	}
+	
+	/**
+	 * @depends test_arrayaccess_returns_objects
+	 * @expectedException BadMethodCallException
+	 */
+	public function test_array_offsets_are_not_writeable($collection)
+	{
+		$collection[1] = 'foo';		
+	}
+	
+	/**
+	 * @depends test_arrayaccess_returns_objects
+	 * @expectedException BadMethodCallException
+	 */
+	public function test_array_offsets_cannot_be_unset($collection)
+	{
+		unset($collection[0]);
+	}
 	
 }
 

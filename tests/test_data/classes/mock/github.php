@@ -20,6 +20,10 @@ class Mock_Github extends Github
 		'status' => '200',
 		'headers' => array());
 	
+	public $_test_request_count = 0;
+	
+	public $_test_request_history = array();
+	
 	/**
 	 * Prepares the mock API to return a response
 	 * @param string $response_body
@@ -67,7 +71,11 @@ class Mock_Github extends Github
 				->method('execute')
 				->will(new PHPUnit_Framework_MockObject_Stub_Return($response));
 		
-		// And pass the request object back into the API class
+		// Store the request history
+		$this->_test_request_count ++;
+		$this->_test_request_history[] = $this->_test_last_request;
+		
+		// And pass the request object back into the API class	
 		return $this->_test_last_request;		
 	}
 	

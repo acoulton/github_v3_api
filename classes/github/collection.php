@@ -1,6 +1,6 @@
 <?php
 
-class Github_Collection
+class Github_Collection implements ArrayAccess, Iterator
 {
 	protected $_github = null;
 	protected $_url = null;
@@ -9,6 +9,8 @@ class Github_Collection
 	protected $_page_count = null;
 	protected $_page_size = 30;
 	protected $_items = array();
+	protected $_current_item = 0;
+	
 
 	/**
 	 * Creates a new Github_Collection object
@@ -26,9 +28,34 @@ class Github_Collection
 	}
 	
 	/**
+	 * Assembles filter and other params with the base URL and 
+	 * pagination data to return the appropriate API URL
+	 * 
+	 * @param integer $page
+	 * @param integer $per_page
+	 * @return string 
+	 */
+	protected function _build_page_url($page, $per_page = null)
+	{
+		if ($per_page === null)
+		{
+			$per_page = $this->_page_size;
+		}
+		
+		$params = Arr::merge($this->_params, array(
+			'page' => (integer) $page,
+			'per_page' => (integer) $per_page
+ 		));
+		
+		$url = $this->_url . '?' . http_build_query($params);
+		return $url;
+ 	}
+	
+	/**
 	 * Loads a page of results into the collection
 	 * 
 	 * @param integer $page The page number to load
+	 * @return Github_Collection
 	 */
 	public function load($page = null)
 	{	
@@ -37,17 +64,13 @@ class Github_Collection
 			$page = 1;
 		}
 		
-		// Compose the URL complete with GET params
-		$params = Arr::merge($this->_params, array(
-			'page'=> (integer) $page));
-		
-		$url = $this->_url . '?' . http_build_query($params);		
+		$url = $this->_build_page_url($page);
 		
 		// Issue the API request
 		$collection_data = $this->_github->api_json($url);
 		
 		// Parse the Link header to detect pagination data
-		$this->_parse_link_header($this->_github->api_response_headers('Link'));
+		$this->_page_count = $this->_parse_api_link_header();
 		
 		if ( ! $collection_data)
 		{
@@ -66,20 +89,24 @@ class Github_Collection
 		foreach ($collection_data as $key => $item)
 		{
 			$this->_items[$key + $start_index] = $item;
-		}				
+		}			
+		
+		return $this;
 	}
 	
 	/**
 	 * Parses the Link: header to extract the number of pages
 	 * of data available for this collection
 	 * @param string $header	  
+	 * @return integer
 	 */
-	protected function _parse_link_header($header)
+	protected function _parse_api_link_header()
 	{
+		$header = $this->_github->api_response_headers('Link');
+				
 		if ( ! $header)
 		{
-			$this->_page_count = 1;
-			return;
+			return 1;
 		}
 		
 		// Extract the "last" page link
@@ -90,7 +117,7 @@ class Github_Collection
 		
 		// Parse the link url to get the page count
 		parse_str(parse_url($matches[1],PHP_URL_QUERY), $link_params);		
-		$this->_page_count = $link_params['page'];
+		return $link_params['page'];
 	}
 	
 	/**
@@ -119,4 +146,111 @@ class Github_Collection
 		}
 	}
 	
+	/**
+	 * Returns the number of items in the collection
+	 */
+	public function count()
+	{
+		if ($this->_page_count === null)
+		{
+			// Get the number of items with a HEAD request
+			$this->_github->api(
+					$this->_build_page_url(1,1),
+					Request::HEAD);
+			$count = $this->_parse_api_link_header();
+			
+			// Store the number of pages and prepare the items array
+			$this->_page_count = floor($count / $this->_page_size);
+			
+			for ($i = count($this->_items); $i < $count; $i++)
+			{
+				$this->_items[$i] = null;
+			}
+			
+		}		
+		return count($this->_items);
+	}
+	
+	/**
+	 * Array Access methods
+	 */
+	
+	/**
+	 * Checks whether the offset is within range of the collection. If the last page has 
+	 * not been loaded, offsetExists will presume that it contains a single 
+	 * result, and may therefore give false positives.
+	 * 
+	 * @param integer $offset 
+	 * @return boolean
+	 */
+	public function offsetExists($offset)
+	{
+		if ($this->_page_count === null)
+		{
+			return false;
+		}
+		
+		$min_item_count = (($this->_page_count - 1 )* $this->_page_size) + 1;
+		$current_item_count = count($this->_items);
+		if ($current_item_count < $min_item_count)
+		{
+			// The last page of results has yet to be loaded
+			return ($offset < $min_item_count);
+		}
+		else
+		{
+			// The last result page has been loaded
+			return ($offset < $current_item_count);
+		}
+	}
+	
+	public function offsetGet($offset)
+	{
+		if ( ! $this->_items[$offset] instanceof Github_Object)
+		{
+			$this->_items[$offset] = new $this->_item_class($this->_github, $this->_items[$offset]);
+		}
+		
+		return $this->_items[$offset];
+	}
+	
+	public function offsetSet($offset, $value)
+	{
+		throw new BadMethodCallException("Cannot set value of items - Github_Collection is a readonly set");
+	}
+	
+	public function offsetUnset($offset)
+	{
+		throw new BadMethodCallException("Cannot unset items - Github_Collection is a readonly set");
+	}
+	
+	/**
+	 * Iterator interface
+	 */
+	
+	public function current()
+	{		
+		// Use offsetGet so that always return an object	
+		return $this->offsetGet($this->_current_item);
+	}
+	
+	public function key()
+	{
+		return $this->_current_item;
+	}
+	
+	public function next()
+	{
+		$this->_current_item++;
+	}
+	
+	public function rewind()
+	{
+		$this->_current_item = 0;
+	}
+	
+	public function valid()
+	{
+		return $this->_current_item < 2;
+	}
 }
