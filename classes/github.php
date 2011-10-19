@@ -30,7 +30,8 @@ class Github
 			Request::POST => '201',
 			Request::PUT => '200',
 			'PATCH' => '200',
-			Request::DELETE => '204'
+			Request::DELETE => '204',
+			Request::HEAD => '200'
 			);
 	
 	/**
