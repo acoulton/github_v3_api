@@ -162,7 +162,7 @@ class Github_CollectionTest extends Github_APITestBase
 		}
 		
 		// Prepare for a HEAD request
-		$github->_test_prepare_response(null, 200,
+		$github->_test_prepare_response('*',null, 200,
 				$this->_get_link_header(array('last'=>$expect_count)));
 		
 		// Validate the item count and request information

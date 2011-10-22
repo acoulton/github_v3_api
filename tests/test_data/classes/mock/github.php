@@ -16,9 +16,10 @@ class Mock_Github extends Github
 	 * @var array
 	 */
 	protected $_test_response_data = array(
-		'body' => null,
-		'status' => '200',
-		'headers' => array());
+		'*' => array(
+			'body' => null,
+			'status' => '200',
+			'headers' => array()));
 	
 	public $_test_request_count = 0;
 	
@@ -30,16 +31,28 @@ class Mock_Github extends Github
 	 * @param string $response_status
 	 * @param array $response_headers 
 	 */
-	public function _test_prepare_response($response_body = null, $response_status = '200', $response_headers = array())
+	public function _test_prepare_response($request_url = '*', $response_body = null, $response_status = '200', $response_headers = array())
 	{
 		if (is_array($response_body))
 		{
 			$response_body = json_encode($response_body);
 		}
 		
-		$this->_test_response_data['body'] = $response_body;
-		$this->_test_response_data['status'] = $response_status;
-		$this->_test_response_data['headers'] = $response_headers;
+		$this->_test_response_data[$request_url]['body'] = $response_body;
+		$this->_test_response_data[$request_url]['status'] = $response_status;
+		$this->_test_response_data[$request_url]['headers'] = $response_headers;
+	}
+	
+	protected function _get_response_data($url)
+	{
+		if (isset($this->_test_response_data[$url]))
+		{
+			return $this->_test_response_data[$url];
+		}
+		else
+		{
+			return $this->_test_response_data['*'];
+		}
 	}
 	
 	/**
@@ -56,12 +69,13 @@ class Mock_Github extends Github
           array($url));
 		
 		// Setup a response object
+		$data = $this->_get_response_data($url);
 		$response = $this->_test_last_request->create_response();
-		$response->body($this->_test_response_data['body']);
-		$response->status($this->_test_response_data['status']);
+		$response->body($data['body']);
+		$response->status($data['status']);
 		
 		// Setting headers one by one ensures that keys are set lowercase
-		foreach ($this->_test_response_data['headers'] as $key=>$value)
+		foreach ($data['headers'] as $key=>$value)
 		{
 			$response->headers($key, $value);
 		}		

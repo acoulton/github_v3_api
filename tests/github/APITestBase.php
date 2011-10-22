@@ -53,7 +53,7 @@ abstract class Github_APITestBase extends Unittest_TestCase
 	protected function _prepare_github($response_body = null, $response_status = '200', $response_headers = array())
 	{
 		$github = new Mock_Github();
-		$github->_test_prepare_response($response_body, $response_status, $response_headers);
+		$github->_test_prepare_response('*', $response_body, $response_status, $response_headers);
 		
 		return $github;		
 	}
