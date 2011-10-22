@@ -189,36 +189,24 @@ class Github_Collection implements ArrayAccess, Iterator
 	 */
 	
 	/**
-	 * Checks whether the offset is within range of the collection. If the last page has 
-	 * not been loaded, offsetExists will presume that it contains a single 
-	 * result, and may therefore give false positives.
+	 * Checks whether the offset is within range of the collection.
 	 * 
 	 * @param integer $offset 
 	 * @return boolean
 	 */
 	public function offsetExists($offset)
 	{
-		if ($this->_page_count === null)
-		{
-			return false;
-		}
-		
-		$min_item_count = (($this->_page_count - 1 )* $this->_page_size) + 1;
-		$current_item_count = count($this->_items);
-		if ($current_item_count < $min_item_count)
-		{
-			// The last page of results has yet to be loaded
-			return ($offset < $min_item_count);
-		}
-		else
-		{
-			// The last result page has been loaded
-			return ($offset < $current_item_count);
-		}
+		return $offset < $this->count();
 	}
 	
 	public function offsetGet($offset)
 	{
+		// If not loaded then lazily load this page
+		if ( ! isset($this->_items[$offset]))
+		{
+			$this->load(1 + floor($offset/$this->_page_size));
+		}
+		
 		if ( ! $this->_items[$offset] instanceof Github_Object)
 		{
 			$this->_items[$offset] = new $this->_item_class($this->_github, $this->_items[$offset]);
@@ -264,6 +252,6 @@ class Github_Collection implements ArrayAccess, Iterator
 	
 	public function valid()
 	{
-		return $this->_current_item < 2;
+		return $this->_current_item < $this->count();
 	}
 }

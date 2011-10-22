@@ -26,6 +26,7 @@ class Github_CollectionTest extends Github_APITestBase
 		{
 			$result[] = array(
 				'url' => "dummy/$i",
+				'seq' => $i
 			);
 		}
 		return $result;
@@ -271,6 +272,30 @@ class Github_CollectionTest extends Github_APITestBase
 		}
 	}
 	
+	public function test_should_lazy_load_when_iterating()
+	{
+		$collection = $this->_prepare_collection($github, 30, 
+				$this->_get_link_header(array('last'=> 3)));
+		/* @var $github Mock_Github */
+		
+		// Prepare for the HEAD item count query
+		$github->_test_prepare_response('https://api.github.com/dummy?page=1&per_page=1', 
+				null, 200 , 
+				$this->_get_link_header(array('last'=> 90)));
+		
+		$i = 0;
+		foreach ($collection as $key => $item) 
+		{
+			$this->assertEquals($i, $key, "Testing collection key");
+			$expect_seq = ($i %30) + 1;
+			$this->assertEquals($expect_seq, $item->seq, "Testing item sequence");
+			$i++;
+		}
+		
+		$this->assertEquals(90, $i, "Testing size of collection");
+		$this->assertEquals(4, $github->_test_request_count, "Verifying number of requests");
+	}
+	
 	public function provider_all_items_are_iterable()
 	{
 		return array(5, 2);
@@ -333,5 +358,6 @@ class Github_Collection_PublishTestData extends Github_Collection
 class Github_Object_CollectionTest extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null);
+		'url' => null,
+		'seq' => null);
 }
