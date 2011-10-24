@@ -119,27 +119,28 @@ abstract class Github_Object
     
 	/**
 	 * Loads a collection of resources related to a current object (eg commits,
-	 * pull requests, etc) and populates their data.
+	 * pull requests, etc).
 	 * 
-	 * @param string $collection_url The url for the collection - relative to the current item
+	 * A relative URL can be passed as collection_url in which case it will
+	 * be appended to the object's own URL.
+	 * 
+	 * @param string $collection_url The url for the collection
 	 * @param string $item_class The class to create for sub-items
-	 * @param array $args Any GET arguments to filter the collection with
-	 * @return array
+	 * @param array $params Any GET arguments to filter the collection with
+	 * @return Github_Collection
 	 */
-    protected function _api_fetch_collection($collection_url, $item_class, $args = array())
+    protected function _api_fetch_collection($collection_url, $item_class, $params = array())
     {
-        $url = $this->url . $collection_url . '?' . http_build_query($args);
-        
-        $api_collection = $this->_github->api_json($url);
-        
-        $results = array();
-        foreach ($api_collection as $api_item)
-        {
-            $object = new $item_class($this->_github, $api_item);            
-            $results[] = $object;
-        }
-        
-        return $results;        
+		if (substr($collection_url, 0,1) == '/')
+		{
+			$collection_url = substr($collection_url, 1);
+		}
+		else
+		{
+			$collection_url = $this->url . '/' . $collection_url;
+		}
+		
+		return new Github_Collection($this->_github, $collection_url, $item_class, $params);
     }
 	
 	/**

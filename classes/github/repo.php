@@ -67,19 +67,19 @@ class Github_Repo extends Github_Object
 	 *     $repo->get_pulls(Github_Repo_Pull::STATE_OPEN);
 	 * 
 	 * @param string $state Defaults to open if none provided
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_pulls($state = Github_Repo_Pull::STATE_OPEN)
 	{
 		return $this->_api_fetch_collection(
-			"/pulls",				
+			"pulls",				
 			'Github_Repo_Pull',
 			array('state' => $state));
 	}
 	
 	/**
 	 * Fetch a list of issues on the repository
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_issues($filter = 'assigned', $state = 'open', $labels = null,
 			$sort = 'created', $direction = 'desc', DateTime $since = null)
@@ -102,30 +102,30 @@ class Github_Repo extends Github_Object
 		}
 		
 		return $this->_api_fetch_collection(
-				"/issues", 
+				"issues", 
 				'Github_Repo_Issue',
 				$params);
 	}
 	
 	/**
 	 * Fetch a list of events associated with the repository
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_events()
 	{
 		return $this->_api_fetch_collection(
-				"/issues/events", 
+				"issues/events", 
 				'Github_Repo_Issue_Event');
 	}
 	
 	/**
 	 * Fetch all issue labels associated with this repository
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_issue_labels()
 	{
 		return $this->_api_fetch_collection(
-				"/labels", 
+				"labels", 
 				'Github_Repo_Issue_Label');	
 	}
 	
@@ -135,12 +135,12 @@ class Github_Repo extends Github_Object
 	 * @param string $state Filter with state - open|closed
 	 * @param string $sort Sort by - due_date|completeness
 	 * @param string $direction Sort order - asc|desc
-	 * @return array 
+	 * @return Github_Collection 
 	 */	
 	public function get_milestones($state = 'open', $sort = 'due_date', $direction = 'desc')
 	{
 		return $this->_api_fetch_collection(
-				"/milestones", 
+				"milestones", 
 				'Github_Repo_Issue_Milestone',
 				array(
 					'state' => $state,

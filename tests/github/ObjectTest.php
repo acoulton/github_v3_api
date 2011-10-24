@@ -395,6 +395,29 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo->save();
 		
 	}
+	
+	public function provider_wraps_collection_object_with_relative_url()
+	{
+		return array(
+			array('foos', 'my/mock/foo/foos'),
+			array('/foos', 'foos')
+		);
+	}
+	
+	/**
+	 * @dataProvider provider_wraps_collection_object_with_relative_url
+	 * @param string $url
+	 * @param string $full_url 
+	 */
+	public function test_wraps_collection_object_with_relative_url($url, $full_url)
+	{
+		$foo = $this->_get_foo(array(
+			'url' => 'my/mock/foo'
+		));
+		
+		$collection = $foo->fetch_foos($url);
+		$this->assertEquals($full_url, $collection->base_url());
+	}
 }
 
 
@@ -417,6 +440,17 @@ class Github_Object_Foo extends Github_Object
 			$data['writeable_field'] = 'transformed';
 		}
 	}
+	
+	/**
+	 *
+	 * @param string $url
+	 * @return Github_Collection
+	 */
+	public function fetch_foos($url)
+	{
+		return $this->_api_fetch_collection($url, 'Github_Object_Foo');
+	}
+	
 }
 
 class Github_Object_Bar extends Github_Object
@@ -426,6 +460,7 @@ class Github_Object_Bar extends Github_Object
 	protected $_fields = array(
 		'bar_field' => null
 	);
+		
 }
 
 class Github_Object_Rebar extends Github_Object

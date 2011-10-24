@@ -27,6 +27,15 @@ class Github_Collection implements ArrayAccess, Iterator
 	}
 	
 	/**
+	 * Returns the base URL of this collection
+	 * @return string
+	 */
+	public function base_url()
+	{
+		return $this->_url;
+	}
+	
+	/**
 	 * Assembles filter and other params with the base URL and 
 	 * pagination data to return the appropriate API URL
 	 * 

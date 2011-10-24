@@ -41,12 +41,12 @@ class Github_Repo_Issue extends Github_Object
 	
 	/**
 	 * List the comments on the issue
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_comments()
 	{
 		return $this->_api_fetch_collection(
-				'/comments', 
+				'comments', 
 				'Github_Repo_Issue_Comment');
 	}
 	
@@ -66,12 +66,12 @@ class Github_Repo_Issue extends Github_Object
 	
 	/**
 	 * Returns a list of all the events related to an issue
-	 * @return array
+	 * @return Github_Collection
 	 */
 	public function get_events()
 	{
 		return $this->_api_fetch_collection(
-				'/events',
+				'events',
 				'Github_Repo_Issue_Event');				
 	}
 	
