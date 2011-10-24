@@ -50,7 +50,10 @@ class Github_APITest extends Github_APITestBase
 			// Should throw exception
 			array('GET', true, "404", false),
 			array('POST', "200", "201", false),
-			array('PUT', "200", "500", false)
+			array('PUT', "200", "500", false),
+			array('GET', array('200','202'), '200', true),
+			array('GET', array('200','202'), '202', true),
+			array('GET', array('200','202'), '404', false),			
 			);
 	}
 	
@@ -105,7 +108,7 @@ class Github_APITest extends Github_APITestBase
 		{
 			$this->fail('Expected Github_Exception_BadHTTPResponse was not thrown');
 		}
-	}
+	}		
 	
 	public function provider_converts_request_body_by_content_type()
 	{

@@ -102,6 +102,12 @@ class Github
 				),
 				$options);
 		
+		// Allow for multiple expected status values
+		if ( ! is_array($options['expect_status']))
+		{
+			$options['expect_status'] = array($options['expect_status']);
+		}
+		
 		$request_content_type = $options['request_content_type'];
 		$response_content_type = $options['response_content_type'];
 		
@@ -140,7 +146,7 @@ class Github
 		// Check for response status
 		$status = $response->status();		
 		
-		if ($status != $options['expect_status'])
+		if ( ! in_array($status, $options['expect_status']))
 		{
 			switch ($status)
 			{
@@ -151,10 +157,10 @@ class Github
 								':message'=>$response->body()));
 				default:
 					throw new Github_Exception_BadHTTPResponse(
-							"Unexpected :actual response from :url with message :message - expected :expected",
+							"Unexpected :actual response from :url with message :message - expected a response in (:expected)",
 						array(':actual'=>$status,
 							':url'=>$url,
-							':expected'=>$options['expect_status'],
+							':expected'=>implode(', ',$options['expect_status']),
 							':message'=>$response->body()));			
 			}
 		}
