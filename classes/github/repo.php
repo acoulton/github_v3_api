@@ -40,11 +40,11 @@ class Github_Repo extends Github_Object
 		'ssh_url' => null,
 		'svn_url' => null,
 		'owner' => 'Github_User',
-		'name' => null,
-		'description' => null,
-		'homepage' => null,
+		'name' => true,
+		'description' => true,
+		'homepage' => true,
 		'language' => null,
-		'private' => null,
+		'private' => true,
 		'fork' => null,
 		'forks' => null,
 		'watchers' => null,
@@ -56,11 +56,11 @@ class Github_Repo extends Github_Object
 		'organization' => 'Github_Organization',
 		'parent' => 'Github_Repo',
 		'source' => 'Github_Repo',
-		'has_issues' => null,
-		'has_wiki' => null,
-		'has_downloads' => null,
+		'has_issues' => true,
+		'has_wiki' => true,
+		'has_downloads' => true,
 		);
-
+	
 	/**
 	 * Fetch a list of pull requests on this repository
 	 * 
@@ -148,35 +148,58 @@ class Github_Repo extends Github_Object
 					'direction' => $direction
 				));
 	}
-	
-	public function create_milestone()
-	{
 		
+	/**
+	 * Returns the contributors who have been involved with this repository
+	 * 
+	 * @param boolean $anon Include anonymous contributors in results
+	 * @return Github_Collection
+	 */
+	public function get_contributors($anon)
+	{
+		return $this->_api_fetch_collection('contributors', 'Github_User');
 	}
 	
-	public function get_contributors()
-	{
-		
-	}
-	
+	/**
+	 * Returns an associative array of the languages that are featured in
+	 * this repository, and the number of lines of code involved.
+	 * 
+	 * @return array
+	 */
 	public function get_languages()
 	{
-		
+		return $this->_github->api_json($this->url . '/teams');
 	}
 	
+	/**
+	 * Returns the teams that are associated with this repository
+	 * 
+	 * @return Github_Collection
+	 */
 	public function get_teams()
 	{
-		
+		return $this->_api_fetch_collection('teams', 'Github_Organisation_Team');
 	}
 	
+	
+	/**
+	 * Returns a collection of this repository's tags
+	 * 
+	 * @return Github_Collection
+	 */
 	public function get_tags()
 	{
-		
+		return $this->_api_fetch_collection('tags', 'Github_Repo_Git_Tag');
 	}
 	
+	/**
+	 * Returns the branches in the repository
+	 * 
+	 * @return Github_Collection
+	 */
 	public function get_branches()
 	{
-		
+		return $this->_api_fetch_collection('branches', 'Github_Repo_Git_Branch');
 	}
 	
 }
