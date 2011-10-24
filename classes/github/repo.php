@@ -202,4 +202,62 @@ class Github_Repo extends Github_Object
 		return $this->_api_fetch_collection('branches', 'Github_Repo_Git_Branch');
 	}
 	
+	/**
+	 * Returns a collection of Github_Users for the collaborators on the repo
+	 * 
+	 * @return Github_Collection
+	 */
+	public function get_collaborators()
+	{
+		return $this->_api_fetch_collection('collaborators', 'Github_User');
+	}
+	
+	/**
+	 * Checks to see if a user is a collaborator
+	 * 
+	 * @param Github_User|string $user  The user to check
+	 * @return boolean
+	 */
+	public function is_collaborator($user)
+	{
+		if ($user instanceof Github_User)
+		{
+			$user = $user->login;
+		}			
+		
+		$response = $this->_github->api($this->url . "/collaborators/$user", Request::GET, null, array('expected_status'=>array(204,404)));
+		
+		return ($response->status() == '204');
+	}
+	
+	/**
+	 * Adds a user as a collaborator on the repository
+	 * 
+	 * @param Github_User|string $user The user to add
+	 */
+	public function add_collaborator($user)
+	{
+		if ($user instanceof Github_User)
+		{
+			$user = $user->login;
+		}			
+		
+		$this->_github->api($this->url . "/collaborators/$user", Request::PUT, null, array('expected_status'=>204));
+	}
+	
+	/**
+	 * Removes a user as a collaborator on the repository
+	 * 
+	 * @param Github_User|string $user The user to remove
+	 */
+	public function remove_collaborator($user)
+	{
+		if ($user instanceof Github_User)
+		{
+			$user = $user->login;
+		}			
+		
+		$this->_github->api($this->url . "/collaborators/$user", Request::DELETE);	
+	}
+	
 }
