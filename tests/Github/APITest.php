@@ -14,6 +14,14 @@
  */
 class Github_APITest extends Github_APITestBase
 {			
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function test_only_valid_properties_are_available()
+	{
+		$github = new Github();		
+		$this->assertEquals('Not This!', $github->a_foo_thing);		
+	}
 
 	/**	 
 	 * @return array

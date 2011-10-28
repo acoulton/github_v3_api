@@ -48,6 +48,7 @@ class Github
 				$property = "_$property";
 				return $this->$property;
 		}
+		throw new InvalidArgumentException("The class ".get_class($this)." does not have a property $property");
 	}
 	
 	
