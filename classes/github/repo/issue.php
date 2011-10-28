@@ -89,7 +89,7 @@ class Github_Repo_Issue extends Github_Object
 		
 		// Add the labels to the issue
 		$this->_data['labels'] = $this->_github->api_json(
-				$this->url . '/labels', 
+				$this->url.'/labels', 
 				Request::POST, 
 				$labels,
 				array(
@@ -125,7 +125,7 @@ class Github_Repo_Issue extends Github_Object
 		
 		// Remove the label from the issue		
 		$this->_data['labels'] = $this->_github->api_json(
-				$this->url . "/labels/$label_name",
+				$this->url."/labels/$label_name",
 				Request::DELETE,
 				null,
 				array('expect_status'=>'200'));
@@ -138,7 +138,7 @@ class Github_Repo_Issue extends Github_Object
 	 */
 	public function clear_labels()
 	{
-		$this->_github->api($this->url . '/labels',
+		$this->_github->api($this->url.'/labels',
 				Request::DELETE);
 	}
 	

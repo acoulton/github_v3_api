@@ -168,7 +168,7 @@ class Github_Repo extends Github_Object
 	 */
 	public function get_languages()
 	{
-		return $this->_github->api_json($this->url . '/teams');
+		return $this->_github->api_json($this->url.'/teams');
 	}
 	
 	/**
@@ -225,7 +225,7 @@ class Github_Repo extends Github_Object
 			$user = $user->login;
 		}			
 		
-		$response = $this->_github->api($this->url . "/collaborators/$user", Request::GET, null, array('expected_status'=>array(204,404)));
+		$response = $this->_github->api($this->url."/collaborators/$user", Request::GET, null, array('expected_status'=>array(204,404)));
 		
 		return ($response->status() == '204');
 	}
@@ -242,7 +242,7 @@ class Github_Repo extends Github_Object
 			$user = $user->login;
 		}			
 		
-		$this->_github->api($this->url . "/collaborators/$user", Request::PUT, null, array('expected_status'=>204));
+		$this->_github->api($this->url."/collaborators/$user", Request::PUT, null, array('expected_status'=>204));
 	}
 	
 	/**
@@ -257,7 +257,7 @@ class Github_Repo extends Github_Object
 			$user = $user->login;
 		}			
 		
-		$this->_github->api($this->url . "/collaborators/$user", Request::DELETE);	
+		$this->_github->api($this->url."/collaborators/$user", Request::DELETE);	
 	}
 	
 }

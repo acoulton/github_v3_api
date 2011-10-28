@@ -51,11 +51,11 @@ class Github_Collection implements ArrayAccess, Iterator
 		}
 		
 		$params = Arr::merge($this->_params, array(
-			'page' => (integer) $page,
-			'per_page' => (integer) $per_page
+			'page' => (int) $page,
+			'per_page' => (int) $per_page
  		));
 		
-		$url = $this->_url . '?' . http_build_query($params);
+		$url = $this->_url.'?'.http_build_query($params);
 		return $url;
  	}
 	
@@ -118,7 +118,7 @@ class Github_Collection implements ArrayAccess, Iterator
 		}
 		
 		// Extract the "last" page link
-		if (! preg_match('_<(https://[^>]+)>; rel="last"_', $header, $matches))
+		if ( ! preg_match('_<(https://[^>]+)>; rel="last"_', $header, $matches))
 		{
 			throw new InvalidArgumentException("Could not parse the link header '$header'");
 		}

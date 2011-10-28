@@ -88,7 +88,7 @@ class Github
 		// Convert to an absolute url if required
 		if (strpos($url, '://') === FALSE)
 		{
-			$url = self::$base_url . $url;
+			$url = self::$base_url.$url;
 		}
 		
 		$this->_response_headers = null;
@@ -230,7 +230,7 @@ class Github
 	 * @return Github_Repo 
 	 */
 	public function get_repo($username, $repo)
-    {
+	{
         if ( ! isset($this->_repos["$username/$repo"]))
         {
             $this->_repos["$username/$repo"] = new Github_Repo($this, 
@@ -250,7 +250,7 @@ class Github
 	 */
 	public function get_user($username = null)
 	{
-		$url = $username === null ? 'user' : "users/$username";
+		$url = ($username === null) ? 'user' : "users/$username";
 		
 		return new Github_User(
 				$this,

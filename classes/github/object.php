@@ -76,7 +76,7 @@ abstract class Github_Object
 		$this->_modified = array();
 		
 		// If not passed an array of data, apply the value to the default field
-		if (! is_array($data))
+		if ( ! is_array($data))
 		{
 			if ($this->_default_field !== null)
 			{
@@ -137,7 +137,7 @@ abstract class Github_Object
 		}
 		else
 		{
-			$collection_url = $this->url . '/' . $collection_url;
+			$collection_url = $this->url.'/'.$collection_url;
 		}
 		
 		return new Github_Collection($this->_github, $collection_url, $item_class, $params);
@@ -153,7 +153,7 @@ abstract class Github_Object
 	protected function _api_new_child($collection_url, $item_class, $data = array())
 	{
 		$new_data = $this->_github->api_json(
-				$this->url . $collection_url,
+				$this->url.$collection_url,
 				Request::POST,
 				$data);
 		
@@ -266,7 +266,7 @@ abstract class Github_Object
         }
 		
 		// Check that the field is writeable
-		if ( $this->_fields[$field] !== true)
+		if ($this->_fields[$field] !== true)
 		{
 			throw new Github_Exception_ReadOnlyProperty(
 					"Readonly property :property in :class could not be set to :value",
