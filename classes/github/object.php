@@ -299,6 +299,9 @@ abstract class Github_Object
 		$this->_loaded = false;
 	}
 	
+	//@codeCoverageIgnoreStart
+	// Extension point only
+	
 	/**
 	 * A pre-save hook to transform any data (for example to replace an object
 	 * with a primary key) prior to submission back to the API
@@ -308,6 +311,8 @@ abstract class Github_Object
 	protected function _transform_modified(&$data)
 	{		
 	}
+	
+	//@codeCoverageIgnoreEnd
 	
 	/**
 	 * Saves a changed object back to Github
