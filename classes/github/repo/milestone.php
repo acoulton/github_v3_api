@@ -23,14 +23,14 @@ class Github_Repo_Milestone extends Github_Object
 {
 	protected $_fields = array (
 		'due_on' => 'Github_Timestamp',
-		'state' => null,
-		'number' => null,
-		'description' => null,
-		'url' => null,
-		'open_issues' => null,
+		'state' => NULL,
+		'number' => NULL,
+		'description' => NULL,
+		'url' => NULL,
+		'open_issues' => NULL,
 		'created_at' => 'Github_Timestamp',
-		'title' => null,
+		'title' => NULL,
 		'creator' => 'Github_User',
-		'closed_issues' => null,
+		'closed_issues' => NULL,
 	);
 }

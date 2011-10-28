@@ -57,7 +57,7 @@ class Github_CollectionTest extends Github_APITestBase
 	 * @param Mock_Github $github
 	 * @return Github_Collection_PublishTestData 
 	 */
-	protected function _prepare_collection(&$github = null, $count=3, $headers = array(), $collection_params = array())
+	protected function _prepare_collection(&$github = NULL, $count=3, $headers = array(), $collection_params = array())
 	{
 		$github = $this->_prepare_github($this->_get_dummy_collection_data($count), 200, $headers);
 		
@@ -97,7 +97,7 @@ class Github_CollectionTest extends Github_APITestBase
 	{
 		return array(
 			array(1, $this->_get_dummy_collection_data(1), 200, array()),
-			array(4, null, 200, 
+			array(4, NULL, 200, 
 				$this->_get_link_header(array('next'=>2, 'last'=>4))),
 		);
 	}
@@ -123,7 +123,7 @@ class Github_CollectionTest extends Github_APITestBase
 	 */
 	public function test_exception_on_invalid_link_header()
 	{
-		$github= $this->_prepare_github(null, 200, $this->_get_link_header(array('next'=>3)));
+		$github= $this->_prepare_github(NULL, 200, $this->_get_link_header(array('next'=>3)));
 		$collection = new Github_Collection($github, 'dummy', 'Github_Object');
 		$collection->load();
 	}
@@ -140,13 +140,13 @@ class Github_CollectionTest extends Github_APITestBase
 	public function provider_provides_result_count()
 	{
 		return array(
-			array(false, false, 10, 1, 'HEAD'),
-			array(false, 1, 30, 1, 'GET'),
-			array(true, false, 310, 1, 'HEAD'),
-			array(true, 1, 310, 2, 'HEAD'),
-			array(true, 9, 280, 2, 'HEAD'),
+			array(FALSE, FALSE, 10, 1, 'HEAD'),
+			array(FALSE, 1, 30, 1, 'GET'),
+			array(TRUE, FALSE, 310, 1, 'HEAD'),
+			array(TRUE, 1, 310, 2, 'HEAD'),
+			array(TRUE, 9, 280, 2, 'HEAD'),
 			// Here the last page of results is loaded, so no count request is required
-			array(true, 10, 300, 1, 'GET')
+			array(TRUE, 10, 300, 1, 'GET')
 		);
 	}
 	
@@ -173,7 +173,7 @@ class Github_CollectionTest extends Github_APITestBase
 		}
 		
 		// Prepare for a HEAD request
-		$github->_test_prepare_response('*',null, 200,
+		$github->_test_prepare_response('*',NULL, 200,
 				$this->_get_link_header(array('last'=>$expect_count)));
 		
 		// Validate the item count and request information
@@ -290,7 +290,7 @@ class Github_CollectionTest extends Github_APITestBase
 		
 		// Prepare for the HEAD item count query
 		$github->_test_prepare_response('https://api.github.com/dummy?page=1&per_page=1', 
-				null, 200 , 
+				NULL, 200 , 
 				$this->_get_link_header(array('last'=> 90)));
 		
 		$i = 0;
@@ -372,7 +372,7 @@ class Github_CollectionTest extends Github_APITestBase
 		
 		// Prepare for the HEAD item count query
 		$github->_test_prepare_response('https://api.github.com/dummy?page=1&per_page=1', 
-				null, 200 , 
+				NULL, 200 , 
 				$this->_get_link_header(array('last'=> 90)));
 				
 		$this->assertTrue(isset($collection[89]));
@@ -392,6 +392,6 @@ class Github_Collection_PublishTestData extends Github_Collection
 class Github_Object_CollectionTest extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null,
-		'seq' => null);
+		'url' => NULL,
+		'seq' => NULL);
 }

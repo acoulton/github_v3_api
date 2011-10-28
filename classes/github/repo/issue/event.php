@@ -10,10 +10,10 @@
 class Github_Repo_Issue_Event extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null,
+		'url' => NULL,
 		'actor' => 'Github_User',
-		'event' => null,
-		'commit_id' => null,
+		'event' => NULL,
+		'commit_id' => NULL,
 		'created_at' => 'Github_Timestamp',
 	);
 }

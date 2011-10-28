@@ -22,17 +22,17 @@
 class Github_Repo_Issue extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null,
-		'html_url' => null,
-		'number' => null,
-		'state' => null,
-		'title' => null,
-		'body' => null,
+		'url' => NULL,
+		'html_url' => NULL,
+		'number' => NULL,
+		'state' => NULL,
+		'title' => NULL,
+		'body' => NULL,
 		'user' => 'Github_User',
-		'labels' => null, // This is actually an array
+		'labels' => NULL, // This is actually an array
 		'assignee' => 'Github_User',
 		'milestone' => 'Github_Repo_Milestone',
-		'comments' => null,
+		'comments' => NULL,
 		'pull_request' => 'Github_Repo_Pull',
 		'closed_at' => 'Github_Timestamp',
 		'created_at' => 'Github_Timestamp',
@@ -109,16 +109,16 @@ class Github_Repo_Issue extends Github_Object
 	public function remove_label($label_name)
 	{	
 		// Check that the label exists
-		$label_found = false;
+		$label_found = FALSE;
 		foreach ($this->labels as $label)
 		{
 			if ($label['name'] == $label_name)
 			{
-				$label_found = true;
+				$label_found = TRUE;
 				break;
 			}
 		}
-		if ($label_found === false)
+		if ($label_found === FALSE)
 		{
 			throw new Exception("Unknown label '$label_name'!");
 		}
@@ -127,7 +127,7 @@ class Github_Repo_Issue extends Github_Object
 		$this->_data['labels'] = $this->_github->api_json(
 				$this->url."/labels/$label_name",
 				Request::DELETE,
-				null,
+				NULL,
 				array('expect_status'=>'200'));
 		
 		return $this->labels;

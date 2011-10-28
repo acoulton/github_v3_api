@@ -11,9 +11,9 @@
 class Github_Repo_Pull_Branch extends Github_Object
 {      
    protected $_fields = array(
-       'label' => null,
-       'ref' => null,
-       'sha' => null,
+       'label' => NULL,
+       'ref' => NULL,
+       'sha' => NULL,
        'user' => 'Github_User',
        'repo' => 'Github_Repo',
        );

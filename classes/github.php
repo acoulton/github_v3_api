@@ -15,13 +15,13 @@ class Github
 {
 	public static $base_url = 'https://api.github.com/';
 	
-	protected $_rate_limit = null;
-	protected $_rate_limit_remaining = null;
+	protected $_rate_limit = NULL;
+	protected $_rate_limit_remaining = NULL;
 	
-	protected $_auth_mode = null;
-	protected $_auth_credential = null;
+	protected $_auth_mode = NULL;
+	protected $_auth_credential = NULL;
 	
-	protected $_response_headers = null;
+	protected $_response_headers = NULL;
 	
     protected $_repos = array();
 	
@@ -76,7 +76,7 @@ class Github
 	 * @return Response
 	 */
 	public function api($url, $method = Request::GET, 
-			$body = null, $options = array())
+			$body = NULL, $options = array())
 	{
 		if ($this->_rate_limit_remaining === '0')
 		{
@@ -91,7 +91,7 @@ class Github
 			$url = self::$base_url.$url;
 		}
 		
-		$this->_response_headers = null;
+		$this->_response_headers = NULL;
 		
 		// Fill out the options
 		$options = Arr::merge(
@@ -130,7 +130,7 @@ class Github
 		$request->headers('Content-type', $request_content_type);
 		
 		// Authenticate if credentials are set
-		if ($this->_auth_mode !== null)
+		if ($this->_auth_mode !== NULL)
 		{
 			$request->headers('Authorization', "$this->_auth_mode $this->_auth_credential");
 		}
@@ -171,8 +171,8 @@ class Github
 	
 	public function api_reset_rate_limit()
 	{
-		$this->_rate_limit = null;
-		$this->_rate_limit_remaining = null;		
+		$this->_rate_limit = NULL;
+		$this->_rate_limit_remaining = NULL;		
 	}
 	
 	public function api_authenticate_basic($user, $pwd)
@@ -197,10 +197,10 @@ class Github
 	 * @return array
 	 */
 	public function api_json($url, $method = Request::GET,			
-			$body = null, $options = array())
+			$body = NULL, $options = array())
 	{		
 		$response = $this->api($url, $method, $body, $options);		
-		return json_decode($response->body(),true);		
+		return json_decode($response->body(),TRUE);		
 	}
 	
 	/**
@@ -210,9 +210,9 @@ class Github
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function api_response_headers($key = null)
+	public function api_response_headers($key = NULL)
 	{
-		if ($key === null)
+		if ($key === NULL)
 		{
 			return $this->_response_headers;	
 		}
@@ -248,9 +248,9 @@ class Github
 	 * @param string $user 
 	 * @return Github_User 
 	 */
-	public function get_user($username = null)
+	public function get_user($username = NULL)
 	{
-		$url = ($username === null) ? 'user' : "users/$username";
+		$url = ($username === NULL) ? 'user' : "users/$username";
 		
 		return new Github_User(
 				$this,

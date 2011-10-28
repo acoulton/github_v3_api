@@ -15,8 +15,8 @@
 class Github_Repo_Issue_Label extends Github_Object
 {
 	protected $_fields = array (
-		'url' => null,
-		'name' => null,
-		'color' => null,
+		'url' => NULL,
+		'name' => NULL,
+		'color' => NULL,
 	);
 }

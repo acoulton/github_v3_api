@@ -2,11 +2,11 @@
 
 class Github_Collection implements ArrayAccess, Iterator
 {
-	protected $_github = null;
-	protected $_url = null;
-	protected $_item_class = null;
+	protected $_github = NULL;
+	protected $_url = NULL;
+	protected $_item_class = NULL;
 	protected $_params = array();
-	protected $_page_count = null;
+	protected $_page_count = NULL;
 	protected $_page_size = 30;
 	protected $_items = array();
 	protected $_current_item = 0;
@@ -43,9 +43,9 @@ class Github_Collection implements ArrayAccess, Iterator
 	 * @param integer $per_page
 	 * @return string 
 	 */
-	protected function _build_page_url($page, $per_page = null)
+	protected function _build_page_url($page, $per_page = NULL)
 	{
-		if ($per_page === null)
+		if ($per_page === NULL)
 		{
 			$per_page = $this->_page_size;
 		}
@@ -65,9 +65,9 @@ class Github_Collection implements ArrayAccess, Iterator
 	 * @param integer $page The page number to load
 	 * @return Github_Collection
 	 */
-	public function load($page = null)
+	public function load($page = NULL)
 	{	
-		if ($page === null)
+		if ($page === NULL)
 		{
 			$page = 1;
 		}
@@ -90,7 +90,7 @@ class Github_Collection implements ArrayAccess, Iterator
 		$data_size = count($this->_items);
 		for ($i = $data_size; $i < $start_index; $i++)
 		{
-			$this->_items[$i] = null;
+			$this->_items[$i] = NULL;
 		}
 		
 		// Store the returned data in the result array
@@ -142,9 +142,9 @@ class Github_Collection implements ArrayAccess, Iterator
 	 * @param integer $size
 	 * @return integer 
 	 */
-	public function page_size($size = null)
+	public function page_size($size = NULL)
 	{
-		if ($size === null)
+		if ($size === NULL)
 		{
 			return $this->_page_size;
 		}
@@ -164,14 +164,14 @@ class Github_Collection implements ArrayAccess, Iterator
 	public function count()
 	{
 		/**
-		 * - If nothing has been loaded, page_count will be null
+		 * - If nothing has been loaded, page_count will be NULL
 		 * - If some pages have been loaded, there will be some items in the 
 		 *    collection, but not the full number of pages worth
 		 * e.g. With 1 page of 30 items, min count is 1
 		 *		With 10 pages of 30 items, min count is 271
 		 */
 		$expect_min_count = (($this->_page_count - 1) * $this->_page_size) + 1;
-		if (($this->_page_count === null)
+		if (($this->_page_count === NULL)
 			OR count($this->_items) < $expect_min_count)
 		{
 			// Get the number of items with a HEAD request
@@ -185,7 +185,7 @@ class Github_Collection implements ArrayAccess, Iterator
 			
 			for ($i = count($this->_items); $i < $count; $i++)
 			{
-				$this->_items[$i] = null;
+				$this->_items[$i] = NULL;
 			}
 						
 						

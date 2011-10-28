@@ -38,30 +38,30 @@ class Github_Repo_Pull extends Github_Object
     * The related issue, returned by [Github_Repo_Pull::get_issue]
     * @var Github_Repo_Issue
     */
-   protected $_issue = null;
+   protected $_issue = NULL;
 
    protected $_fields = array(
-       'url' => null,
-       'html_url' => null,
-       'diff_url' => null,
-       'patch_url' => null,
-       'issue_url' => null,
-       'number' => null,
-       'state' => null,
-       'title' => null,
-       'body' => null,
+       'url' => NULL,
+       'html_url' => NULL,
+       'diff_url' => NULL,
+       'patch_url' => NULL,
+       'issue_url' => NULL,
+       'number' => NULL,
+       'state' => NULL,
+       'title' => NULL,
+       'body' => NULL,
        'created_at' => 'Github_Timestamp',
        'updated_at' => 'Github_Timestamp',
        'closed_at' => 'Github_Timestamp',
        'merged_at' => 'Github_Timestamp',
-       'merged' => null,
-       'mergeable' => null,
+       'merged' => NULL,
+       'mergeable' => NULL,
        'merged_by' => 'Github_User',
-       'comments' => null,
-       'commits' => null,
-       'additions' => null,
-       'deletions' => null,
-       'changed_files' => null,
+       'comments' => NULL,
+       'commits' => NULL,
+       'additions' => NULL,
+       'deletions' => NULL,
+       'changed_files' => NULL,
        'head' => 'Github_Repo_Pull_Branch',
        'base' => 'Github_Repo_Pull_Branch',
        );

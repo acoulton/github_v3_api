@@ -20,9 +20,9 @@ class Github_Repo_Git_Commit extends Github_Object
 {
 	protected $_fields = array (
 		'parents' => 'array',
-		'sha' => null,
-		'message' => null,
-		'url' => null,
+		'sha' => NULL,
+		'message' => NULL,
+		'url' => NULL,
 		'tree' => 'Github_Repo_Git_Tree',
 		'author' => 'Github_Repo_Git_Author',
 		'committer' => 'Github_Repo_Git_Author',

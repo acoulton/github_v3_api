@@ -25,24 +25,24 @@ class Github_User extends Github_Object
 {      
    protected $_default_field = 'login';
    protected $_fields = array(
-      'login'=> null,
-      'id'=> null,
-      'avatar_url'=> null,
-      'url'=> null,
-      'name'=> null,
-      'company'=> null,
-      'blog'=> null,
-      'location'=> null,
-      'email'=> null,
-      'hireable'=> null,
-      'bio'=> null,
-      'public_repos'=> null,
-      'public_gists'=> null,
-      'followers'=> null,
-      'following'=> null,
-      'html_url'=> null,
+      'login'=> NULL,
+      'id'=> NULL,
+      'avatar_url'=> NULL,
+      'url'=> NULL,
+      'name'=> NULL,
+      'company'=> NULL,
+      'blog'=> NULL,
+      'location'=> NULL,
+      'email'=> NULL,
+      'hireable'=> NULL,
+      'bio'=> NULL,
+      'public_repos'=> NULL,
+      'public_gists'=> NULL,
+      'followers'=> NULL,
+      'following'=> NULL,
+      'html_url'=> NULL,
       'created_at'=> 'Github_Timestamp',
-      'type'=> null
+      'type'=> NULL
       );
    
 }

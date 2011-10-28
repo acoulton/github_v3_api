@@ -21,14 +21,14 @@
 class Github_Repo_Download extends Github_Object
 {
 	protected $_fields = array (
-		'download_count' => null,
-		'description' => null,
-		'url' => null,
+		'download_count' => NULL,
+		'description' => NULL,
+		'url' => NULL,
 		'created_at' => 'Github_Timestamp',
-		'size' => null,
-		'content_type' => null,
-		'name' => null,
-		'id' => null,
-		'html_url' => null,
+		'size' => NULL,
+		'content_type' => NULL,
+		'name' => NULL,
+		'id' => NULL,
+		'html_url' => NULL,
 	);
 }

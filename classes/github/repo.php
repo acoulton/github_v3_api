@@ -33,32 +33,32 @@
 class Github_Repo extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null,
-		'html_url' => null,
-		'clone_url' => null,
-		'git_url' => null,
-		'ssh_url' => null,
-		'svn_url' => null,
+		'url' => NULL,
+		'html_url' => NULL,
+		'clone_url' => NULL,
+		'git_url' => NULL,
+		'ssh_url' => NULL,
+		'svn_url' => NULL,
 		'owner' => 'Github_User',
-		'name' => true,
-		'description' => true,
-		'homepage' => true,
-		'language' => null,
-		'private' => true,
-		'fork' => null,
-		'forks' => null,
-		'watchers' => null,
-		'size' => null,
-		'master_branch' => null,
-		'open_issues' => null,
+		'name' => TRUE,
+		'description' => TRUE,
+		'homepage' => TRUE,
+		'language' => NULL,
+		'private' => TRUE,
+		'fork' => NULL,
+		'forks' => NULL,
+		'watchers' => NULL,
+		'size' => NULL,
+		'master_branch' => NULL,
+		'open_issues' => NULL,
 		'pushed_at' => 'Github_Timestamp',
 		'created_at' => 'Github_Timestamp',
 		'organization' => 'Github_Organization',
 		'parent' => 'Github_Repo',
 		'source' => 'Github_Repo',
-		'has_issues' => true,
-		'has_wiki' => true,
-		'has_downloads' => true,
+		'has_issues' => TRUE,
+		'has_wiki' => TRUE,
+		'has_downloads' => TRUE,
 		);
 	
 	/**
@@ -81,8 +81,8 @@ class Github_Repo extends Github_Object
 	 * Fetch a list of issues on the repository
 	 * @return Github_Collection
 	 */
-	public function get_issues($filter = 'assigned', $state = 'open', $labels = null,
-			$sort = 'created', $direction = 'desc', DateTime $since = null)
+	public function get_issues($filter = 'assigned', $state = 'open', $labels = NULL,
+			$sort = 'created', $direction = 'desc', DateTime $since = NULL)
 	{
 		$params = array(
 			'filter' => $filter,
@@ -91,12 +91,12 @@ class Github_Repo extends Github_Object
 			'direction' => $direction			
 		);
 		
-		if ($labels !== null)
+		if ($labels !== NULL)
 		{
 			$params['labels'] = $labels;
 		}
 		
-		if ($since !== null)
+		if ($since !== NULL)
 		{
 			$params['since'] = $since->format('c');
 		}
@@ -225,7 +225,7 @@ class Github_Repo extends Github_Object
 			$user = $user->login;
 		}			
 		
-		$response = $this->_github->api($this->url."/collaborators/$user", Request::GET, null, array('expected_status'=>array(204,404)));
+		$response = $this->_github->api($this->url."/collaborators/$user", Request::GET, NULL, array('expected_status'=>array(204,404)));
 		
 		return ($response->status() == '204');
 	}
@@ -242,7 +242,7 @@ class Github_Repo extends Github_Object
 			$user = $user->login;
 		}			
 		
-		$this->_github->api($this->url."/collaborators/$user", Request::PUT, null, array('expected_status'=>204));
+		$this->_github->api($this->url."/collaborators/$user", Request::PUT, NULL, array('expected_status'=>204));
 	}
 	
 	/**

@@ -18,7 +18,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	 *
 	 * @var PHPUnit_Framework_MockObject_MockObject
 	 */
-	protected $mock_github = null;
+	protected $mock_github = NULL;
 	
 	/**
 	 * Convenience method to get a new Foo object for testing
@@ -49,7 +49,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	 * @param boolean $json 
 	 * @param array $body_data
 	 */
-	protected function assert_should_call_api($url, $return_data, $method = 'GET', $json = true, $body_data = null)
+	protected function assert_should_call_api($url, $return_data, $method = 'GET', $json = TRUE, $body_data = NULL)
 	{
 		$api_method = $json ? 'api_json' : 'api';
 		
@@ -140,7 +140,7 @@ class Github_ObjectTest extends Unittest_TestCase
 	public function test_null_object_fields_are_null()
 	{
 		$foo = $this->_get_foo(array(
-			'bar'=>null));
+			'bar'=>NULL));
 		
 		$this->assertNull($foo->bar);
 	}
@@ -201,11 +201,11 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assert_should_call_api('my/mock/foo',
 						array('url'=>'my/mock/foo'));
 		
-		$this->assertEquals(false, $foo->loaded());
+		$this->assertEquals(FALSE, $foo->loaded());
 		
 		$foo->load();
 		
-		$this->assertEquals(true, $foo->loaded());
+		$this->assertEquals(TRUE, $foo->loaded());
 	}
 	
 	public function test_object_can_delete()
@@ -213,7 +213,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo = $this->_get_foo(array(
 			'url'=>'my/mock/foo'));
 		
-		$this->assert_should_call_api('my/mock/foo', null, 'DELETE', false);
+		$this->assert_should_call_api('my/mock/foo', NULL, 'DELETE', FALSE);
 		
 		$foo->delete();
 	}
@@ -261,11 +261,11 @@ class Github_ObjectTest extends Unittest_TestCase
 	{
 		$foo = $this->_get_foo();
 		
-		$this->assertEquals(false, $foo->modified());
+		$this->assertEquals(FALSE, $foo->modified());
 		
 		$foo->writeable_field = 'bar';
 		
-		$this->assertEquals(true, $foo->modified());
+		$this->assertEquals(TRUE, $foo->modified());
 	}
 	
 	public function test_reloaded_objects_are_not_modified()
@@ -274,10 +274,10 @@ class Github_ObjectTest extends Unittest_TestCase
 		
 		$foo->writeable_field = 'bar';
 		$foo->reload_data(array(
-			'field_1' => true
+			'field_1' => TRUE
 			));
 		
-		$this->assertEquals(false, $foo->modified());
+		$this->assertEquals(FALSE, $foo->modified());
 	}
 	
 	public function test_setting_unchanged_values_does_not_modify()
@@ -299,8 +299,8 @@ class Github_ObjectTest extends Unittest_TestCase
 		$this->assert_should_not_call_api();
 		$data = array(
 			'url' => 'my/mock/foo',
-			'field_1' => true,
-			'writeable_field' => true,
+			'field_1' => TRUE,
+			'writeable_field' => TRUE,
 			'bar' => array(
 				'bar_field' => 'test'
 			));
@@ -357,7 +357,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo->writeable_field = 'bar';
 		
 		$this->assert_should_call_api('my/mock/foo',
-				array('url'=>'my/mock/foo'), 'PATCH', true,
+				array('url'=>'my/mock/foo'), 'PATCH', TRUE,
 				array('writeable_field'=>'bar'));
 		
 		$foo->save();		
@@ -373,7 +373,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo->writeable_field_2 = 'test_2';
 		
 		$this->assert_should_call_api('my/mock/foo',
-				array('url'=>'my/mock/foo'),'PATCH', true, array(
+				array('url'=>'my/mock/foo'),'PATCH', TRUE, array(
 					'writeable_field_2' => 'test_2'
 				));
 		
@@ -389,7 +389,7 @@ class Github_ObjectTest extends Unittest_TestCase
 		$foo->writeable_field = 'transform_me';
 		
 		$this->assert_should_call_api('my/mock/foo',
-				array('url'=>'my/mock/foo'),'PATCH', true,
+				array('url'=>'my/mock/foo'),'PATCH', TRUE,
 				array('writeable_field'=>'transformed'));
 		
 		$foo->save();
@@ -424,12 +424,12 @@ class Github_ObjectTest extends Unittest_TestCase
 class Github_Object_Foo extends Github_Object
 {
 	protected $_fields = array(
-		'url' => null,
+		'url' => NULL,
 		'bar' => 'Github_Object_Bar',
 		'rebar' => 'Github_Object_Rebar',
-		'field_1' => null,
-		'writeable_field' => true,
-		'writeable_field_2' => true
+		'field_1' => NULL,
+		'writeable_field' => TRUE,
+		'writeable_field_2' => TRUE
 	);
 	
 	protected function _transform_modified(&$data)
@@ -458,7 +458,7 @@ class Github_Object_Bar extends Github_Object
 	protected $_default_field = 'bar_field';
 	
 	protected $_fields = array(
-		'bar_field' => null
+		'bar_field' => NULL
 	);
 		
 }
@@ -466,6 +466,6 @@ class Github_Object_Bar extends Github_Object
 class Github_Object_Rebar extends Github_Object
 {
 	protected $_fields = array(
-		'rebar_field' => null
+		'rebar_field' => NULL
 	);
 }

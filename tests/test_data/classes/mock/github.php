@@ -9,7 +9,7 @@ class Mock_Github extends Github
 	 * A reference to the most recent request
 	 * @var Request
 	 */
-	public $_test_last_request = null;
+	public $_test_last_request = NULL;
 	
 	/**
 	 * Data to be passed to the next API call
@@ -17,7 +17,7 @@ class Mock_Github extends Github
 	 */
 	protected $_test_response_data = array(
 		'*' => array(
-			'body' => null,
+			'body' => NULL,
 			'status' => '200',
 			'headers' => array()));
 	
@@ -31,7 +31,7 @@ class Mock_Github extends Github
 	 * @param string $response_status
 	 * @param array $response_headers 
 	 */
-	public function _test_prepare_response($request_url = '*', $response_body = null, $response_status = '200', $response_headers = array())
+	public function _test_prepare_response($request_url = '*', $response_body = NULL, $response_status = '200', $response_headers = array())
 	{
 		if (is_array($response_body))
 		{

@@ -15,7 +15,7 @@ abstract class Github_Object
 	 * Reference to the central Github instance - used for API calls
 	 * @var Github
 	 */
-    protected $_github = null;
+    protected $_github = NULL;
 	
 	/**
 	 * The current data of the class, only including fields that are loaded
@@ -40,14 +40,14 @@ abstract class Github_Object
 	 * Whether the class has been loaded from Github
 	 * @var boolean
 	 */
-    protected $_loaded = false;
+    protected $_loaded = FALSE;
 	
 	/**
 	 * The name of the default field, to be populated if the class has been
 	 * created with a single scalar data value instead of an array
 	 * @var string
 	 */
-	protected $_default_field = null;
+	protected $_default_field = NULL;
     
 	/**
 	 * Setup the new instance, and store a reference to the Github dependency
@@ -78,7 +78,7 @@ abstract class Github_Object
 		// If not passed an array of data, apply the value to the default field
 		if ( ! is_array($data))
 		{
-			if ($this->_default_field !== null)
+			if ($this->_default_field !== NULL)
 			{
 				$data = array($this->_default_field => $data);
 			}
@@ -96,16 +96,16 @@ abstract class Github_Object
         {			
             if (array_key_exists($field, $data))
             {
-                if (($type === null) OR ($type === true))
+                if (($type === NULL) OR ($type === TRUE))
                 {
 					// Store a scalar value
                     $this->_data[$field] = $data[$field];
                 }
 				else
 				{
-					if ($data[$field] === null)
+					if ($data[$field] === NULL)
 					{
-						$this->_data[$field] = null;
+						$this->_data[$field] = NULL;
 					}
 					else
 					{
@@ -170,7 +170,7 @@ abstract class Github_Object
 	{
 		$api_data = $this->_github->api_json($this->url);
 		$this->reload_data($api_data);
-		$this->_loaded = true;
+		$this->_loaded = TRUE;
 		return $this;
 	}
     
@@ -266,7 +266,7 @@ abstract class Github_Object
         }
 		
 		// Check that the field is writeable
-		if ($this->_fields[$field] !== true)
+		if ($this->_fields[$field] !== TRUE)
 		{
 			throw new Github_Exception_ReadOnlyProperty(
 					"Readonly property :property in :class could not be set to :value",
@@ -296,7 +296,7 @@ abstract class Github_Object
 	{
 		$this->_github->api($this->url, Request::DELETE);
 		$this->_data = array();
-		$this->_loaded = false;
+		$this->_loaded = FALSE;
 	}
 	
 	//@codeCoverageIgnoreStart
@@ -323,7 +323,7 @@ abstract class Github_Object
 	{
 		if ( ! $this->_modified)
 		{
-			return false;
+			return FALSE;
 		}
 		
 		// Get data and transform if required
@@ -338,8 +338,8 @@ abstract class Github_Object
 		
 		// Update our own data and mark as loaded
 		$this->reload_data($new_data);
-		$this->_loaded = true;
-		return true;
+		$this->_loaded = TRUE;
+		return TRUE;
 	}
 	
 	/**
@@ -357,7 +357,7 @@ abstract class Github_Object
 	 */
 	public function modified()
 	{
-		return $this->_modified ? true : false;
+		return $this->_modified ? TRUE : FALSE;
 	}
 	
 	/**

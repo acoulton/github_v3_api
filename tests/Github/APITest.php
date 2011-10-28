@@ -44,16 +44,16 @@ class Github_APITest extends Github_APITestBase
 		// Request method, expect status, actual status, should pass
 		return array(	
 			// Should all be OK
-			array('GET', true, "200", true),
-			array('POST', true, "201", true),
-			array('PUT', "404", "404", true),
+			array('GET', TRUE, "200", TRUE),
+			array('POST', TRUE, "201", TRUE),
+			array('PUT', "404", "404", TRUE),
 			// Should throw exception
-			array('GET', true, "404", false),
-			array('POST', "200", "201", false),
-			array('PUT', "200", "500", false),
-			array('GET', array('200','202'), '200', true),
-			array('GET', array('200','202'), '202', true),
-			array('GET', array('200','202'), '404', false),			
+			array('GET', TRUE, "404", FALSE),
+			array('POST', "200", "201", FALSE),
+			array('PUT', "200", "500", FALSE),
+			array('GET', array('200','202'), '200', TRUE),
+			array('GET', array('200','202'), '202', TRUE),
+			array('GET', array('200','202'), '404', FALSE),			
 			);
 	}
 	
@@ -70,7 +70,7 @@ class Github_APITest extends Github_APITestBase
 		$github = $this->_prepare_github('gh_error_string', $fake_status);
 		
 		// Setup a non-default expected status if required
-		if ($expect_status !== true)
+		if ($expect_status !== TRUE)
 		{
 			$options = array('expect_status'=>$expect_status);
 		}
@@ -82,7 +82,7 @@ class Github_APITest extends Github_APITestBase
 		// Test behaviour
 		try
 		{
-			$github->api('/dummy', $request_method, null, $options);
+			$github->api('/dummy', $request_method, NULL, $options);
 		}
 		catch (Github_Exception_BadHTTPResponse $e)
 		{
@@ -144,7 +144,7 @@ class Github_APITest extends Github_APITestBase
 	public function test_can_specify_response_content_type()
 	{
 		$github = new Mock_Github();
-		$github->api('/dummy', 'GET', null, array('response_content_type'=>'application/dummy.content'));
+		$github->api('/dummy', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
 		
 		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
 		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
@@ -168,7 +168,7 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_can_specify_request_method($method, $response_status)
 	{
-		$github = $this->_prepare_github(null, $response_status);
+		$github = $this->_prepare_github(NULL, $response_status);
 		$github->api('/dummy',$method);
 		$this->assertEquals($method, $github->_test_last_request->method());
 	}
@@ -176,10 +176,10 @@ class Github_APITest extends Github_APITestBase
 	public function test_response_headers_are_available()
 	{
 		$test_header = array('X-test-header'=>'test');
-		$github = $this->_prepare_github(null, 200, $test_header);
+		$github = $this->_prepare_github(NULL, 200, $test_header);
 
-		// Should be null before a request
-		$this->assertEquals(null, $github->api_response_headers());
+		// Should be NULL before a request
+		$this->assertEquals(NULL, $github->api_response_headers());
 		
 		$github->api('/dummy');
 	
@@ -195,7 +195,7 @@ class Github_APITest extends Github_APITestBase
 	
 	public function test_rate_limit_information_available()
 	{
-		$github = $this->_prepare_github(null, 200, array
+		$github = $this->_prepare_github(NULL, 200, array
 				('X-RateLimit-Limit'=> 5000,
 				 'X-RateLimit-Remaining'=>4966));
 		
@@ -208,7 +208,7 @@ class Github_APITest extends Github_APITestBase
 	public function test_rate_limit_blocks_further_requests()
 	{
 		// Fake a request that represents the last for this rate limit
-		$github = $this->_prepare_github(null, 200, array
+		$github = $this->_prepare_github(NULL, 200, array
 				('X-RateLimit-Remaining'=>0));
 		
 		$github->api('/dummy');
@@ -263,7 +263,7 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_unauthorized_request_throws_exception()
 	{
-		$github = $this->_prepare_github(null, '401');
+		$github = $this->_prepare_github(NULL, '401');
 		$github->api('/dummy');
 	}
 	
@@ -287,7 +287,7 @@ class Github_APITest extends Github_APITestBase
 	
 	public function test_individual_response_headers_available()
 	{
-		$github = $this->_prepare_github(null,200,array('Test-foo'=>'ok'));
+		$github = $this->_prepare_github(NULL,200,array('Test-foo'=>'ok'));
 		$github->api('dummy');
 		
 		$this->assertEquals('ok', $github->api_response_headers('Test-foo'));

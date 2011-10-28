@@ -16,7 +16,7 @@ class Github_Repo_Git_Reference extends Github_Object
 {
 	protected $_fields = array (
 		'object' => 'Github_Repo_Git_Commit',
-		'ref' => null,
-		'url' => null,
+		'ref' => NULL,
+		'url' => NULL,
 	);
 }

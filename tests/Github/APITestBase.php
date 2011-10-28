@@ -20,7 +20,7 @@ abstract class Github_APITestBase extends Unittest_TestCase
 	/**
 	 * Setups the filesystem for test view files
 	 *
-	 * @return null
+	 * @return NULL
 	 */
 	public static function setupBeforeClass()
 	{
@@ -35,7 +35,7 @@ abstract class Github_APITestBase extends Unittest_TestCase
 	/**
 	 * Restores the module list
 	 *
-	 * @return null
+	 * @return NULL
 	 */
 	public static function teardownAfterClass()
 	{
@@ -50,7 +50,7 @@ abstract class Github_APITestBase extends Unittest_TestCase
 	 * @param array $response_headers
 	 * @return Mock_Github 
 	 */
-	protected function _prepare_github($response_body = null, $response_status = '200', $response_headers = array())
+	protected function _prepare_github($response_body = NULL, $response_status = '200', $response_headers = array())
 	{
 		$github = new Mock_Github();
 		$github->_test_prepare_response('*', $response_body, $response_status, $response_headers);

@@ -16,9 +16,9 @@
 class Github_Key extends Github_Object
 {
 	protected $_fields = array (
-		'url' => null,
-		'key' => null,
-		'title' => null,
-		'id' => null,
+		'url' => NULL,
+		'key' => NULL,
+		'title' => NULL,
+		'id' => NULL,
 	);
 }
