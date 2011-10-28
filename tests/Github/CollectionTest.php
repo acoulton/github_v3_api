@@ -118,6 +118,16 @@ class Github_CollectionTest extends Github_APITestBase
 		$this->assertEquals($expect_pages, $collection->page_count());		
 	}
 	
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function test_exception_on_invalid_link_header()
+	{
+		$github= $this->_prepare_github(null, 200, $this->_get_link_header(array('next'=>3)));
+		$collection = new Github_Collection($github, 'dummy', 'Github_Object');
+		$collection->load();
+	}
+	
 	public function test_stores_single_page_result_count()
 	{
 		$collection = $this->_prepare_collection($github, 2)
