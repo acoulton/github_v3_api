@@ -345,6 +345,30 @@ class Github_CollectionTest extends Github_APITestBase
 		unset($collection[0]);
 	}
 	
+	/**
+	 * @depends test_arrayaccess_returns_objects
+	 */
+	public function test_array_offset_can_be_tested($collection)
+	{
+		$this->assertTrue(isset($collection[1]));
+		$this->assertFalse(isset($collection[9]));
+	}
+	
+	public function test_isset_supports_lazy_loading()
+	{
+		$collection = $this->_prepare_collection($github, 30, 
+		$this->_get_link_header(array('last'=> 3)));
+		/* @var $github Mock_Github */
+		
+		// Prepare for the HEAD item count query
+		$github->_test_prepare_response('https://api.github.com/dummy?page=1&per_page=1', 
+				null, 200 , 
+				$this->_get_link_header(array('last'=> 90)));
+				
+		$this->assertTrue(isset($collection[89]));
+		$this->assertFalse(isset($collection[90]));
+	}
+	
 }
 
 class Github_Collection_PublishTestData extends Github_Collection
