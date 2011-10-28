@@ -308,7 +308,7 @@ abstract class Github_Object
 	 * 
 	 * @param array $data 
 	 */
-	protected function _transform_modified(&$data)
+	protected function _transform_modified( & $data)
 	{		
 	}
 	

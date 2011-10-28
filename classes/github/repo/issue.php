@@ -148,7 +148,7 @@ class Github_Repo_Issue extends Github_Object
 	 * 
 	 * @param array $data	 
 	 */
-	protected function _transform_modified(&$data)
+	protected function _transform_modified( & $data)
 	{
 		// Convert the milestone object to the milestone number
 		if (isset($data['milestone']))
