@@ -178,7 +178,7 @@ class Github_Repo extends Github_Object
 	 */
 	public function get_teams()
 	{
-		return $this->_api_fetch_collection('teams', 'Github_Organisation_Team');
+		return $this->_api_fetch_collection('teams', 'Github_Organization_Team');
 	}
 	
 	

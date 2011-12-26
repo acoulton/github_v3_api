@@ -15,7 +15,7 @@
  * @property string $name 
  * @property integer $id 
  */
-class Github_Organisation_Team extends Github_Object
+class Github_Organization_Team extends Github_Object
 {
 	protected $_fields = array (
 		'permission' => NULL,
