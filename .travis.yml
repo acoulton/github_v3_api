@@ -1,0 +1,14 @@
+# Configuration file for Travis CI test environment
+language: php
+php:
+  - 5.3
+
+env:
+  - KO_SANDBOX=/home/vagrant/kohana
+
+before_script:
+  # Create a kohana environment
+  - php ./dev/ko_sandbox.php
+
+# Run the Github tests
+script: phpunit --bootstrap=$KO_SANDBOX/modules/unittest/bootstrap.php --group=github $KO_SANDBOX/modules/unittest/tests.php
