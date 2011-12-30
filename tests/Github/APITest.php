@@ -14,7 +14,16 @@
  */
 class Github_APITest extends Github_APITestBase
 {
-	protected $_mimic_default_scenario = 'github';
+	protected $_mimic_default_scenario = 'dummy';
+
+	public function setUp()
+	{
+		parent::setUp();
+
+		// These tests all use dummy request recordings to isolate test functionality
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+	}
 
 	/**
 	 * @expectedException InvalidArgumentException
@@ -31,8 +40,8 @@ class Github_APITest extends Github_APITestBase
 	public function provider_should_make_relative_url_absolute()
 	{
 		return array(
-			array('/users/acoulton',Github::$base_url . 'users/acoulton'),
-			array('https://api.github.com/users/acoulton', 'https://api.github.com/users/acoulton'));
+			array('/response/200',Github::$base_url . 'response/200'),
+			array('https://api.github.com/response/200', 'https://api.github.com/response/200'));
 	}
 
 	/**
@@ -76,11 +85,6 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_should_verify_response_status($request_method, $expect_status, $fake_status, $should_pass)
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Setup a non-default expected status if required
 		if ($expect_status !== TRUE)
 		{
@@ -146,11 +150,6 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_converts_request_body_by_content_type($api_body, $request_content_type, $expect_request_body)
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test the request handling
 		$github = new Github;
 
@@ -162,11 +161,6 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_can_specify_response_content_type()
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test the request handling
 		$github = new Github();
 		$github->api('/body', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
@@ -193,11 +187,6 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_can_specify_request_method($method, $response_status)
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test request handling
 		$github = new Github;
 		$github->api('/response/'.$response_status,$method);
@@ -206,11 +195,6 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_response_headers_are_available()
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test header handling
 		$github = new Github;
 
@@ -230,11 +214,6 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_rate_limit_information_available()
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test request handling
 		$github = new Github;
 
@@ -246,11 +225,6 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_rate_limit_blocks_further_requests()
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test request handling
 		$github = new Github;
 
@@ -285,11 +259,6 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_rate_limit_can_be_reset(Github $github)
 	{
-		// Setup for the fake requests and responses
-		$this->mimic->load_scenario('dummy');
-		$this->mimic->enable_recording(FALSE);
-		$this->mimic->enable_updating(FALSE);
-
 		// Test handling
 		$github->api_reset_rate_limit();
 		$github->api('/response/200');
