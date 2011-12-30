@@ -13,36 +13,47 @@
  * @license    http://kohanaframework.org/license
  */
 class Github_APITest extends Github_APITestBase
-{			
+{
+	protected $_mimic_default_scenario = 'dummy';
+
+	public function setUp()
+	{
+		parent::setUp();
+
+		// These tests all use dummy request recordings to isolate test functionality
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+	}
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
 	public function test_only_valid_properties_are_available()
 	{
-		$github = new Github();		
-		$this->assertEquals('Not This!', $github->a_foo_thing);		
+		$github = new Github();
+		$this->assertEquals('Not This!', $github->a_foo_thing);
 	}
 
-	/**	 
+	/**
 	 * @return array
 	 */
 	public function provider_should_make_relative_url_absolute()
 	{
 		return array(
-			array('/my/mock/foo',Github::$base_url . '/my/mock/foo'),
-			array('https://api.github.com/dummy', 'https://api.github.com/dummy'));
+			array('/response/200',Github::$base_url . 'response/200'),
+			array('https://api.github.com/response/200', 'https://api.github.com/response/200'));
 	}
-	
+
 	/**
 	 * @dataProvider provider_should_make_relative_url_absolute
 	 */
 	public function test_should_make_relative_url_absolute($api_url, $expected)
 	{
-		$github = new Mock_Github();
+		$github = new Github();
 		$github->api($api_url);
-		$this->assertEquals($expected, $github->_test_last_request->uri());
+		$this->assertMimicLastRequestURL($expected);
 	}
-	
+
 	/**
 	 * Data provider for testing that the API verifies expected response status
 	 * @return array
@@ -50,7 +61,7 @@ class Github_APITest extends Github_APITestBase
 	public function provider_should_verify_response_status()
 	{
 		// Request method, expect status, actual status, should pass
-		return array(	
+		return array(
 			// Should all be OK
 			array('GET', TRUE, "200", TRUE),
 			array('POST', TRUE, "201", TRUE),
@@ -61,10 +72,10 @@ class Github_APITest extends Github_APITestBase
 			array('PUT', "200", "500", FALSE),
 			array('GET', array('200','202'), '200', TRUE),
 			array('GET', array('200','202'), '202', TRUE),
-			array('GET', array('200','202'), '404', FALSE),			
+			array('GET', array('200','202'), '404', FALSE),
 			);
 	}
-	
+
 	/**
 	 * @dataProvider provider_should_verify_response_status
 	 * @param string $request_method
@@ -74,9 +85,6 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_should_verify_response_status($request_method, $expect_status, $fake_status, $should_pass)
 	{
-		// Setup the stub Github object to return the given result
-		$github = $this->_prepare_github('gh_error_string', $fake_status);
-		
 		// Setup a non-default expected status if required
 		if ($expect_status !== TRUE)
 		{
@@ -86,15 +94,16 @@ class Github_APITest extends Github_APITestBase
 		{
 			$options = array();
 		}
-		
+
 		// Test behaviour
 		try
 		{
-			$github->api('/dummy', $request_method, NULL, $options);
+			$github = new Github;
+			$github->api('/response/'.$fake_status, $request_method, NULL, $options);
 		}
 		catch (Github_Exception_BadHTTPResponse $e)
 		{
-			// Check if this request was supposed to throw exception			
+			// Check if this request was supposed to throw exception
 			if ($should_pass)
 			{
 				// If not, bubble up
@@ -104,20 +113,20 @@ class Github_APITest extends Github_APITestBase
 			{
 				// Test passed, verify message contents
 				$msg = $e->getMessage();
-				$this->assertContains('/dummy', $msg);
-				$this->assertContains('gh_error_string', $msg);
+				$this->assertContains('/response', $msg);
+				$this->assertContains('gh_response_string', $msg);
 				$this->assertContains($fake_status, $msg);
 				return;
 			}
 		}
-		
+
 		// Should only reach here if no exception
 		if ( ! $should_pass)
 		{
 			$this->fail('Expected Github_Exception_BadHTTPResponse was not thrown');
 		}
-	}		
-	
+	}
+
 	public function provider_converts_request_body_by_content_type()
 	{
 		return array(
@@ -128,36 +137,38 @@ class Github_APITest extends Github_APITestBase
 			),
 		);
 	}
-	
+
 	/**
-	 * Tests that requests are correctly populated with content type and that 
+	 * Tests that requests are correctly populated with content type and that
 	 * where appropriate data is automatically serialised or otherwise converted
 	 * to the specified content type.
-	 * 
+	 *
 	 * @dataProvider provider_converts_request_body_by_content_type
 	 * @param mixed $api_body
 	 * @param string $request_content_type
-	 * @param string $expect_request_body 
+	 * @param string $expect_request_body
 	 */
 	public function test_converts_request_body_by_content_type($api_body, $request_content_type, $expect_request_body)
 	{
-		$github = new Mock_Github;
-		
-		$github->api('/dummy', 'GET', $api_body, array('request_content_type'=>$request_content_type));
-		
-		$this->assertEquals($expect_request_body, $github->_test_last_request->body());
-		$this->assertEquals($request_content_type, $github->_test_last_request->headers('Content-type'));
+		// Test the request handling
+		$github = new Github;
+
+		$github->api('/body', 'POST', $api_body, array('request_content_type'=>$request_content_type));
+
+		$this->assertMimicLastRequestBody($expect_request_body);
+		$this->assertMimicLastRequestHeader('Content-Type', $request_content_type);
 	}
-	
+
 	public function test_can_specify_response_content_type()
 	{
-		$github = new Mock_Github();
-		$github->api('/dummy', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
-		
+		// Test the request handling
+		$github = new Github();
+		$github->api('/body', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
+
 		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
-		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
+		$this->assertMimicLastRequestHeader('Accept', 'application/dummy.content');
 	}
-	
+
 	public function provider_can_specify_request_method()
 	{
 		return array(
@@ -168,138 +179,137 @@ class Github_APITest extends Github_APITestBase
 			array('DELETE',204)
 		);
 	}
-	
+
 	/**
 	 * @dataProvider provider_can_specify_request_method
 	 * @param string $method
-	 * @param string $response_status 
+	 * @param string $response_status
 	 */
 	public function test_can_specify_request_method($method, $response_status)
 	{
-		$github = $this->_prepare_github(NULL, $response_status);
-		$github->api('/dummy',$method);
-		$this->assertEquals($method, $github->_test_last_request->method());
+		// Test request handling
+		$github = new Github;
+		$github->api('/response/'.$response_status,$method);
+		$this->assertMimicLastRequestMethod($method);
 	}
-	
+
 	public function test_response_headers_are_available()
 	{
-		$test_header = array('X-test-header'=>'test');
-		$github = $this->_prepare_github(NULL, 200, $test_header);
+		// Test header handling
+		$github = new Github;
 
 		// Should be NULL before a request
 		$this->assertEquals(NULL, $github->api_response_headers());
-		
-		$github->api('/dummy');
-	
+
+		$github->api('/headers');
+
 		// Should make the headers available after a request
 		$headers = $github->api_response_headers();
 		$this->assertEquals('test', $headers['X-test-header']);
-		
+
 		// And following a new request, headers should be reset
-		$github->_test_prepare_response();
-		$github->api('/dummy');
+		$github->api('/response/200');
 		$this->assertEquals(array(), $github->api_response_headers()->getArrayCopy());
 	}
-	
+
 	public function test_rate_limit_information_available()
 	{
-		$github = $this->_prepare_github(NULL, 200, array
-				('X-RateLimit-Limit'=> 5000,
-				 'X-RateLimit-Remaining'=>4966));
-		
-		$github->api('/dummy');
-		
+		// Test request handling
+		$github = new Github;
+
+		$github->api('/limit/info');
+
 		$this->assertEquals(5000, $github->rate_limit);
 		$this->assertEquals(4966, $github->rate_limit_remaining);
 	}
-	
+
 	public function test_rate_limit_blocks_further_requests()
 	{
-		// Fake a request that represents the last for this rate limit
-		$github = $this->_prepare_github(NULL, 200, array
-				('X-RateLimit-Remaining'=>0));
-		
-		$github->api('/dummy');
-		
+		// Test request handling
+		$github = new Github;
+
+		$github->api('/limit/reached');
+		$this->assertEquals(0, $github->rate_limit_remaining);
+
 		/*
 		 * For the next attempted request, the API should throw an exception
 		 * before trying to make a request.
 		 */
-		
-		$first_request = $github->_test_last_request;
+
 		try
 		{
-			$github->api('/dummy-second');
+			$github->api('/response/200');
 		}
 		catch (Github_Exception_RateLimitExceeded $e)
 		{
-			$this->assertEquals($first_request, $github->_test_last_request);
+			$this->assertMimicRequestCount(1);
 			return $github;
 		}
-		
-		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');	
-	}		
-	
+
+		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');
+	}
+
 	/**
 	 * Once the API has triggered the rate limit block, the user should
 	 * be able to reset it. If the reset fails, this test would throw a
 	 * Github_Exception_RateLimitExceeded
-	 * 
+	 *
 	 * @depends test_rate_limit_blocks_further_requests
-	 * @param Mock_Github $github 
+	 * @param Github $github
 	 */
-	public function test_rate_limit_can_be_reset(Mock_Github $github)
+	public function test_rate_limit_can_be_reset(Github $github)
 	{
-		$first_request = $github->_test_last_request;
-		$github->api_reset_rate_limit();		
-		$github->api('/dummy-third');
-		
-		// Test that a new request was made		
-		$this->assertNotEquals($first_request, $github->_test_last_request);
+		// Test handling
+		$github->api_reset_rate_limit();
+		$github->api('/response/200');
+
+		// Test that a new request was made
+		$this->assertMimicRequestCount(1);
 	}
-	
+
 	public function test_no_authentication_by_default()
 	{
-		$github = $this->_prepare_github();
-		$github->api('/dummy');
-		
-		$this->assertNull($github->_test_last_request->headers('Authorization'));
+		$github = new Github;
+		$github->api('/response/200');
+
+		$this->assertNull($this->mimic->last_request()->headers('Authorization'));
 	}
-	
+
 	/**
 	 * @expectedException Github_Exception_Unauthorized
 	 */
 	public function test_unauthorized_request_throws_exception()
 	{
-		$github = $this->_prepare_github(NULL, '401');
-		$github->api('/dummy');
+		// Test handling
+		$github = new Github;
+		$github->api('/response/401');
 	}
-	
+
 	public function test_basic_authentication()
 	{
-		$github = $this->_prepare_github();
+		$github = new Github;
 		$github->api_authenticate_basic('test','pwd');
-		$github->api('/dummy');
-		
-		$this->assertEquals('Basic '.base64_encode('test:pwd'), $github->_test_last_request->headers('Authorization'));
+		$github->api('/auth');
+
+		$this->assertMimicLastRequestHeader('Authorization', 'Basic '.base64_encode('test:pwd'));
 	}
-	
+
 	public function test_oauth_authentication()
 	{
-		$github = $this->_prepare_github();
+		$github = new Github;
 		$github->api_authenticate_oauth('foo');
-		$github->api('/dummy');
-		
-		$this->assertEquals('token foo', $github->_test_last_request->headers('Authorization'));
+		$github->api('/auth');
+
+		$this->assertMimicLastRequestHeader('Authorization', 'token foo');
 	}
-	
+
 	public function test_individual_response_headers_available()
 	{
-		$github = $this->_prepare_github(NULL,200,array('Test-foo'=>'ok'));
-		$github->api('dummy');
-		
-		$this->assertEquals('ok', $github->api_response_headers('Test-foo'));
-		$this->assertNull($github->api_response_headers('Test-bar'));
+		$github = new Github;
+		$github->api('/headers');
+
+		$this->assertEquals('test', $github->api_response_headers('X-Test-Header'));
+		$this->assertNull($github->api_response_headers('X-Test-Not-Present'));
 	}
 
 }

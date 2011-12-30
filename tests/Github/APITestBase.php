@@ -13,49 +13,30 @@
  * @copyright  (c) 2011 Andrew Coulton
  * @license    http://kohanaframework.org/license
  */
-abstract class Github_APITestBase extends Unittest_TestCase
+abstract class Github_APITestBase extends Mimic_Unittest_Testcase
 {
-	protected static $old_modules = array();
-
-	/**
-	 * Setups the filesystem for test view files
-	 *
-	 * @return NULL
-	 */
-	public static function setupBeforeClass()
+	public function setUp()
 	{
-		self::$old_modules = Kohana::modules();
+		parent::setUp();
 
-		$new_modules = self::$old_modules+array(
-			'test_apitest_data' => realpath(__DIR__.'/../test_data/')
-		);
-		Kohana::modules($new_modules);
+		// Use the mimic data files belonging to this module
+		$path = realpath(__DIR__.'/../test_data/mimic/');
+		$this->mimic->base_path($path);
+		$this->mimic->enable_recording(TRUE);
+		//$this->mimic->external_client('Request_Client_Curl');
 	}
 
-	/**
-	 * Restores the module list
-	 *
-	 * @return NULL
-	 */
-	public static function teardownAfterClass()
-	{
-		Kohana::modules(self::$old_modules);
-	}
-	
-	
+
 	/**
 	 * Helper method to ease creation of a mock Github class complete with expected request and response
 	 * @param string $response_body
 	 * @param string $response_status
 	 * @param array $response_headers
-	 * @return Mock_Github 
+	 * @return Mock_Github
 	 */
 	protected function _prepare_github($response_body = NULL, $response_status = '200', $response_headers = array())
 	{
-		$github = new Mock_Github();
-		$github->_test_prepare_response('*', $response_body, $response_status, $response_headers);
-		
-		return $github;		
+		throw new Exception("Old test!");
 	}
-	
+
 }
