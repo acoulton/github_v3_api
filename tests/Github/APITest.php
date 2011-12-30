@@ -13,17 +13,19 @@
  * @license    http://kohanaframework.org/license
  */
 class Github_APITest extends Github_APITestBase
-{			
+{
+	protected $_mimic_default_scenario = 'github';
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
 	public function test_only_valid_properties_are_available()
 	{
-		$github = new Github();		
-		$this->assertEquals('Not This!', $github->a_foo_thing);		
+		$github = new Github();
+		$this->assertEquals('Not This!', $github->a_foo_thing);
 	}
 
-	/**	 
+	/**
 	 * @return array
 	 */
 	public function provider_should_make_relative_url_absolute()
@@ -32,17 +34,17 @@ class Github_APITest extends Github_APITestBase
 			array('/my/mock/foo',Github::$base_url . '/my/mock/foo'),
 			array('https://api.github.com/dummy', 'https://api.github.com/dummy'));
 	}
-	
+
 	/**
 	 * @dataProvider provider_should_make_relative_url_absolute
 	 */
 	public function test_should_make_relative_url_absolute($api_url, $expected)
 	{
-		$github = new Mock_Github();
+		$github = new Github();
 		$github->api($api_url);
-		$this->assertEquals($expected, $github->_test_last_request->uri());
+		$this->assertMimicLastRequestURL($expected);
 	}
-	
+
 	/**
 	 * Data provider for testing that the API verifies expected response status
 	 * @return array
@@ -86,15 +88,16 @@ class Github_APITest extends Github_APITestBase
 		{
 			$options = array();
 		}
-		
+
 		// Test behaviour
 		try
 		{
-			$github->api('/dummy', $request_method, NULL, $options);
+			$github = new Github;
+			$github->api('/response/'.$fake_status, $request_method, NULL, $options);
 		}
 		catch (Github_Exception_BadHTTPResponse $e)
 		{
-			// Check if this request was supposed to throw exception			
+			// Check if this request was supposed to throw exception
 			if ($should_pass)
 			{
 				// If not, bubble up
@@ -128,36 +131,36 @@ class Github_APITest extends Github_APITestBase
 			),
 		);
 	}
-	
+
 	/**
-	 * Tests that requests are correctly populated with content type and that 
+	 * Tests that requests are correctly populated with content type and that
 	 * where appropriate data is automatically serialised or otherwise converted
 	 * to the specified content type.
-	 * 
+	 *
 	 * @dataProvider provider_converts_request_body_by_content_type
 	 * @param mixed $api_body
 	 * @param string $request_content_type
-	 * @param string $expect_request_body 
+	 * @param string $expect_request_body
 	 */
 	public function test_converts_request_body_by_content_type($api_body, $request_content_type, $expect_request_body)
 	{
-		$github = new Mock_Github;
-		
+		$github = new Github;
+
 		$github->api('/dummy', 'GET', $api_body, array('request_content_type'=>$request_content_type));
-		
+
 		$this->assertEquals($expect_request_body, $github->_test_last_request->body());
 		$this->assertEquals($request_content_type, $github->_test_last_request->headers('Content-type'));
 	}
-	
+
 	public function test_can_specify_response_content_type()
 	{
-		$github = new Mock_Github();
+		$github = new Github();
 		$github->api('/dummy', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
-		
+
 		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
 		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
 	}
-	
+
 	public function provider_can_specify_request_method()
 	{
 		return array(
@@ -246,9 +249,9 @@ class Github_APITest extends Github_APITestBase
 	 * Github_Exception_RateLimitExceeded
 	 *
 	 * @depends test_rate_limit_blocks_further_requests
-	 * @param Mock_Github $github 
+	 * @param Github $github
 	 */
-	public function test_rate_limit_can_be_reset(Mock_Github $github)
+	public function test_rate_limit_can_be_reset(Github $github)
 	{
 		$first_request = $github->_test_last_request;
 		$github->api_reset_rate_limit();
