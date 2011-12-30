@@ -76,9 +76,11 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_should_verify_response_status($request_method, $expect_status, $fake_status, $should_pass)
 	{
-		// Setup the stub Github object to return the given result
-		$github = $this->_prepare_github('gh_error_string', $fake_status);
-		
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
 		// Setup a non-default expected status if required
 		if ($expect_status !== TRUE)
 		{
@@ -107,8 +109,8 @@ class Github_APITest extends Github_APITestBase
 			{
 				// Test passed, verify message contents
 				$msg = $e->getMessage();
-				$this->assertContains('/dummy', $msg);
-				$this->assertContains('gh_error_string', $msg);
+				$this->assertContains('/response', $msg);
+				$this->assertContains('gh_response_string', $msg);
 				$this->assertContains($fake_status, $msg);
 				return;
 			}
