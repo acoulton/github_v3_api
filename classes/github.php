@@ -89,6 +89,10 @@ class Github
 		// Convert to an absolute url if required
 		if (strpos($url, '://') === FALSE)
 		{
+			if (substr($url,0,1) === '/')
+			{
+				$url = substr($url, 1);
+			}
 			$url = self::$base_url.$url;
 		}
 
