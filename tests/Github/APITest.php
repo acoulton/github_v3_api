@@ -269,10 +269,10 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_no_authentication_by_default()
 	{
-		$github = $this->_prepare_github();
-		$github->api('/dummy');
+		$github = new Github;
+		$github->api('/response/200');
 
-		$this->assertNull($github->_test_last_request->headers('Authorization'));
+		$this->assertNull($this->mimic->last_request()->headers('Authorization'));
 	}
 
 	/**
@@ -280,35 +280,36 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_unauthorized_request_throws_exception()
 	{
-		$github = $this->_prepare_github(NULL, '401');
-		$github->api('/dummy');
+		// Test handling
+		$github = new Github;
+		$github->api('/response/401');
 	}
 
 	public function test_basic_authentication()
 	{
-		$github = $this->_prepare_github();
+		$github = new Github;
 		$github->api_authenticate_basic('test','pwd');
-		$github->api('/dummy');
+		$github->api('/auth');
 
-		$this->assertEquals('Basic '.base64_encode('test:pwd'), $github->_test_last_request->headers('Authorization'));
+		$this->assertMimicLastRequestHeader('Authorization', 'Basic '.base64_encode('test:pwd'));
 	}
 
 	public function test_oauth_authentication()
 	{
-		$github = $this->_prepare_github();
+		$github = new Github;
 		$github->api_authenticate_oauth('foo');
-		$github->api('/dummy');
+		$github->api('/auth');
 
-		$this->assertEquals('token foo', $github->_test_last_request->headers('Authorization'));
+		$this->assertMimicLastRequestHeader('Authorization', 'token foo');
 	}
 
 	public function test_individual_response_headers_available()
 	{
-		$github = $this->_prepare_github(NULL,200,array('Test-foo'=>'ok'));
-		$github->api('dummy');
+		$github = new Github;
+		$github->api('/headers');
 
-		$this->assertEquals('ok', $github->api_response_headers('Test-foo'));
-		$this->assertNull($github->api_response_headers('Test-bar'));
+		$this->assertEquals('test', $github->api_response_headers('X-Test-Header'));
+		$this->assertNull($github->api_response_headers('X-Test-Not-Present'));
 	}
 
 }
