@@ -31,8 +31,8 @@ class Github_APITest extends Github_APITestBase
 	public function provider_should_make_relative_url_absolute()
 	{
 		return array(
-			array('/my/mock/foo',Github::$base_url . '/my/mock/foo'),
-			array('https://api.github.com/dummy', 'https://api.github.com/dummy'));
+			array('/users/acoulton',Github::$base_url . 'users/acoulton'),
+			array('https://api.github.com/users/acoulton', 'https://api.github.com/users/acoulton'));
 	}
 
 	/**
