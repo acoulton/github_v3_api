@@ -50,7 +50,7 @@ class Github_APITest extends Github_APITestBase
 	public function provider_should_verify_response_status()
 	{
 		// Request method, expect status, actual status, should pass
-		return array(	
+		return array(
 			// Should all be OK
 			array('GET', TRUE, "200", TRUE),
 			array('POST', TRUE, "201", TRUE),
@@ -61,10 +61,10 @@ class Github_APITest extends Github_APITestBase
 			array('PUT', "200", "500", FALSE),
 			array('GET', array('200','202'), '200', TRUE),
 			array('GET', array('200','202'), '202', TRUE),
-			array('GET', array('200','202'), '404', FALSE),			
+			array('GET', array('200','202'), '404', FALSE),
 			);
 	}
-	
+
 	/**
 	 * @dataProvider provider_should_verify_response_status
 	 * @param string $request_method
@@ -110,14 +110,14 @@ class Github_APITest extends Github_APITestBase
 				return;
 			}
 		}
-		
+
 		// Should only reach here if no exception
 		if ( ! $should_pass)
 		{
 			$this->fail('Expected Github_Exception_BadHTTPResponse was not thrown');
 		}
-	}		
-	
+	}
+
 	public function provider_converts_request_body_by_content_type()
 	{
 		return array(
@@ -168,11 +168,11 @@ class Github_APITest extends Github_APITestBase
 			array('DELETE',204)
 		);
 	}
-	
+
 	/**
 	 * @dataProvider provider_can_specify_request_method
 	 * @param string $method
-	 * @param string $response_status 
+	 * @param string $response_status
 	 */
 	public function test_can_specify_request_method($method, $response_status)
 	{
@@ -180,7 +180,7 @@ class Github_APITest extends Github_APITestBase
 		$github->api('/dummy',$method);
 		$this->assertEquals($method, $github->_test_last_request->method());
 	}
-	
+
 	public function test_response_headers_are_available()
 	{
 		$test_header = array('X-test-header'=>'test');
@@ -188,44 +188,44 @@ class Github_APITest extends Github_APITestBase
 
 		// Should be NULL before a request
 		$this->assertEquals(NULL, $github->api_response_headers());
-		
+
 		$github->api('/dummy');
-	
+
 		// Should make the headers available after a request
 		$headers = $github->api_response_headers();
 		$this->assertEquals('test', $headers['X-test-header']);
-		
+
 		// And following a new request, headers should be reset
 		$github->_test_prepare_response();
 		$github->api('/dummy');
 		$this->assertEquals(array(), $github->api_response_headers()->getArrayCopy());
 	}
-	
+
 	public function test_rate_limit_information_available()
 	{
 		$github = $this->_prepare_github(NULL, 200, array
 				('X-RateLimit-Limit'=> 5000,
 				 'X-RateLimit-Remaining'=>4966));
-		
+
 		$github->api('/dummy');
-		
+
 		$this->assertEquals(5000, $github->rate_limit);
 		$this->assertEquals(4966, $github->rate_limit_remaining);
 	}
-	
+
 	public function test_rate_limit_blocks_further_requests()
 	{
 		// Fake a request that represents the last for this rate limit
 		$github = $this->_prepare_github(NULL, 200, array
 				('X-RateLimit-Remaining'=>0));
-		
+
 		$github->api('/dummy');
-		
+
 		/*
 		 * For the next attempted request, the API should throw an exception
 		 * before trying to make a request.
 		 */
-		
+
 		$first_request = $github->_test_last_request;
 		try
 		{
@@ -236,36 +236,36 @@ class Github_APITest extends Github_APITestBase
 			$this->assertEquals($first_request, $github->_test_last_request);
 			return $github;
 		}
-		
-		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');	
-	}		
-	
+
+		$this->fail('Excpected Github_Exception_RateLimitExceeded was not thrown!');
+	}
+
 	/**
 	 * Once the API has triggered the rate limit block, the user should
 	 * be able to reset it. If the reset fails, this test would throw a
 	 * Github_Exception_RateLimitExceeded
-	 * 
+	 *
 	 * @depends test_rate_limit_blocks_further_requests
 	 * @param Mock_Github $github 
 	 */
 	public function test_rate_limit_can_be_reset(Mock_Github $github)
 	{
 		$first_request = $github->_test_last_request;
-		$github->api_reset_rate_limit();		
+		$github->api_reset_rate_limit();
 		$github->api('/dummy-third');
-		
-		// Test that a new request was made		
+
+		// Test that a new request was made
 		$this->assertNotEquals($first_request, $github->_test_last_request);
 	}
-	
+
 	public function test_no_authentication_by_default()
 	{
 		$github = $this->_prepare_github();
 		$github->api('/dummy');
-		
+
 		$this->assertNull($github->_test_last_request->headers('Authorization'));
 	}
-	
+
 	/**
 	 * @expectedException Github_Exception_Unauthorized
 	 */
@@ -274,30 +274,30 @@ class Github_APITest extends Github_APITestBase
 		$github = $this->_prepare_github(NULL, '401');
 		$github->api('/dummy');
 	}
-	
+
 	public function test_basic_authentication()
 	{
 		$github = $this->_prepare_github();
 		$github->api_authenticate_basic('test','pwd');
 		$github->api('/dummy');
-		
+
 		$this->assertEquals('Basic '.base64_encode('test:pwd'), $github->_test_last_request->headers('Authorization'));
 	}
-	
+
 	public function test_oauth_authentication()
 	{
 		$github = $this->_prepare_github();
 		$github->api_authenticate_oauth('foo');
 		$github->api('/dummy');
-		
+
 		$this->assertEquals('token foo', $github->_test_last_request->headers('Authorization'));
 	}
-	
+
 	public function test_individual_response_headers_available()
 	{
 		$github = $this->_prepare_github(NULL,200,array('Test-foo'=>'ok'));
 		$github->api('dummy');
-		
+
 		$this->assertEquals('ok', $github->api_response_headers('Test-foo'));
 		$this->assertNull($github->api_response_headers('Test-bar'));
 	}
