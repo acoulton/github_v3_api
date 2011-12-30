@@ -146,21 +146,33 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_converts_request_body_by_content_type($api_body, $request_content_type, $expect_request_body)
 	{
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
+		// Test the request handling
 		$github = new Github;
 
-		$github->api('/dummy', 'GET', $api_body, array('request_content_type'=>$request_content_type));
+		$github->api('/body', 'POST', $api_body, array('request_content_type'=>$request_content_type));
 
-		$this->assertEquals($expect_request_body, $github->_test_last_request->body());
-		$this->assertEquals($request_content_type, $github->_test_last_request->headers('Content-type'));
+		$this->assertMimicLastRequestBody($expect_request_body);
+		$this->assertMimicLastRequestHeader('Content-Type', $request_content_type);
 	}
 
 	public function test_can_specify_response_content_type()
 	{
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
+		// Test the request handling
 		$github = new Github();
-		$github->api('/dummy', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
+		$github->api('/body', 'GET', NULL, array('response_content_type'=>'application/dummy.content'));
 
 		// Have to do this from the headers - Kohana request only parses incoming Accept header from $_SERVER
-		$this->assertEquals($github->_test_last_request->headers('Accept'), 'application/dummy.content');
+		$this->assertMimicLastRequestHeader('Accept', 'application/dummy.content');
 	}
 
 	public function provider_can_specify_request_method()
@@ -181,28 +193,41 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_can_specify_request_method($method, $response_status)
 	{
-		$github = $this->_prepare_github(NULL, $response_status);
-		$github->api('/dummy',$method);
-		$this->assertEquals($method, $github->_test_last_request->method());
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
+		// Test request handling
+		$github = new Github;
+		$github->api('/response/'.$response_status,$method);
+		$this->assertMimicLastRequestMethod($method);
 	}
 
+	/**
+	 * @group wip
+	 */
 	public function test_response_headers_are_available()
 	{
-		$test_header = array('X-test-header'=>'test');
-		$github = $this->_prepare_github(NULL, 200, $test_header);
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
+		// Test header handling
+		$github = new Github;
 
 		// Should be NULL before a request
 		$this->assertEquals(NULL, $github->api_response_headers());
 
-		$github->api('/dummy');
+		$github->api('/headers');
 
 		// Should make the headers available after a request
 		$headers = $github->api_response_headers();
 		$this->assertEquals('test', $headers['X-test-header']);
 
 		// And following a new request, headers should be reset
-		$github->_test_prepare_response();
-		$github->api('/dummy');
+		$github->api('/response/200');
 		$this->assertEquals(array(), $github->api_response_headers()->getArrayCopy());
 	}
 

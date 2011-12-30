@@ -1,42 +1,42 @@
 <?php
 return array (
   0 => array(
-    'method' => 'GET',
+    'method' => 'POST',
     'headers' => array(
       'accept' => 'application/json',
       'content-type' => 'application/json',
     ),
     'query' => array(),
     'response' => array(
-      'status' => 200,
+      'status' => 201,
       'headers' => array(),
-      'body_file' => '../body.json',
+      'body_file' => NULL,
     ),
   ),
   1 => array(
-    'method' => 'PUT',
+    'method' => 'POST',
     'headers' => array(
       'accept' => 'application/json',
-      'content-type' => 'application/json',
+      'content-type' => 'text/html',
     ),
     'query' => array(),
     'response' => array(
-      'status' => 200,
+      'status' => 201,
       'headers' => array(),
-      'body_file' => '../body.json',
+      'body_file' => NULL,
     ),
   ),
   2 => array(
-    'method' => 'PATCH',
+    'method' => 'GET',
     'headers' => array(
-      'accept' => 'application/json',
+      'accept' => 'application/dummy.content',
       'content-type' => 'application/json',
     ),
     'query' => array(),
     'response' => array(
       'status' => 200,
       'headers' => array(),
-      'body_file' => '../body.json',
+      'body_file' => NULL,
     ),
   ),
 );
