@@ -204,9 +204,6 @@ class Github_APITest extends Github_APITestBase
 		$this->assertMimicLastRequestMethod($method);
 	}
 
-	/**
-	 * @group wip
-	 */
 	public function test_response_headers_are_available()
 	{
 		// Setup for the fake requests and responses
@@ -233,11 +230,15 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_rate_limit_information_available()
 	{
-		$github = $this->_prepare_github(NULL, 200, array
-				('X-RateLimit-Limit'=> 5000,
-				 'X-RateLimit-Remaining'=>4966));
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
 
-		$github->api('/dummy');
+		// Test request handling
+		$github = new Github;
+
+		$github->api('/limit/info');
 
 		$this->assertEquals(5000, $github->rate_limit);
 		$this->assertEquals(4966, $github->rate_limit_remaining);
@@ -245,25 +246,29 @@ class Github_APITest extends Github_APITestBase
 
 	public function test_rate_limit_blocks_further_requests()
 	{
-		// Fake a request that represents the last for this rate limit
-		$github = $this->_prepare_github(NULL, 200, array
-				('X-RateLimit-Remaining'=>0));
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
 
-		$github->api('/dummy');
+		// Test request handling
+		$github = new Github;
+
+		$github->api('/limit/reached');
+		$this->assertEquals(0, $github->rate_limit_remaining);
 
 		/*
 		 * For the next attempted request, the API should throw an exception
 		 * before trying to make a request.
 		 */
 
-		$first_request = $github->_test_last_request;
 		try
 		{
-			$github->api('/dummy-second');
+			$github->api('/response/200');
 		}
 		catch (Github_Exception_RateLimitExceeded $e)
 		{
-			$this->assertEquals($first_request, $github->_test_last_request);
+			$this->assertMimicRequestCount(1);
 			return $github;
 		}
 
@@ -280,12 +285,17 @@ class Github_APITest extends Github_APITestBase
 	 */
 	public function test_rate_limit_can_be_reset(Github $github)
 	{
-		$first_request = $github->_test_last_request;
+		// Setup for the fake requests and responses
+		$this->mimic->load_scenario('dummy');
+		$this->mimic->enable_recording(FALSE);
+		$this->mimic->enable_updating(FALSE);
+
+		// Test handling
 		$github->api_reset_rate_limit();
-		$github->api('/dummy-third');
+		$github->api('/response/200');
 
 		// Test that a new request was made
-		$this->assertNotEquals($first_request, $github->_test_last_request);
+		$this->assertMimicRequestCount(1);
 	}
 
 	public function test_no_authentication_by_default()
