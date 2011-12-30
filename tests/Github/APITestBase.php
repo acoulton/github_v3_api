@@ -22,8 +22,8 @@ abstract class Github_APITestBase extends Mimic_Unittest_Testcase
 		// Use the mimic data files belonging to this module
 		$path = realpath(__DIR__.'/../test_data/mimic/');
 		$this->mimic->base_path($path);
-		$this->mimic->enable_recording(TRUE);
-		//$this->mimic->external_client('Request_Client_Curl');
+		$this->mimic->enable_recording(Arr::get($_SERVER['MIMIC_ENABLE_RECORD'], FALSE) ? TRUE : FALSE);
+		$this->mimic->enable_updating(Arr::get($_SERVER['MIMIC_ENABLE_UPDATE'], FALSE) ? TRUE : FALSE);
 	}
 
 
