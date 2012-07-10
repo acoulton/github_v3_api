@@ -13,7 +13,7 @@
  * @property Github_Repo_Git_Commit $commit
  * @property string $name
  */
-class Github_Repo_Git_Tag extends Github_Object
+class Github_Repo_Tag extends Github_Object
 {
 	protected $_fields = array (
 		'zipball_url' => NULL,

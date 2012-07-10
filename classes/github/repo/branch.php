@@ -11,7 +11,7 @@
  * @property Github_Repo_Git_Commit $commit
  * @property string $name
  */
-class Github_Repo_Git_Branch extends Github_Object
+class Github_Repo_Branch extends Github_Object
 {
 	protected $_fields = array (
 		'commit' => 'Github_Repo_Git_Commit',
