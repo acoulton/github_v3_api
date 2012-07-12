@@ -189,7 +189,7 @@ class Github_Repo extends Github_Object
 	 */
 	public function get_tags()
 	{
-		return $this->_api_fetch_collection('tags', 'Github_Repo_Git_Tag');
+		return $this->_api_fetch_collection('tags', 'Github_Repo_Tag');
 	}
 	
 	/**
@@ -199,7 +199,7 @@ class Github_Repo extends Github_Object
 	 */
 	public function get_branches()
 	{
-		return $this->_api_fetch_collection('branches', 'Github_Repo_Git_Branch');
+		return $this->_api_fetch_collection('branches', 'Github_Repo_Branch');
 	}
 	
 	/**

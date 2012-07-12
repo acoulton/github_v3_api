@@ -1,23 +1,23 @@
-<?php 
+<?php
 /**
- * <describe the class here>
- * 
+ * Holds the details of a repository milestone
+ *
  * @package    GithubAPIv3
  * @category   Objects
  * @author     Andrew Coulton
  * @copyright  (c) 2011 Andrew Coulton
  * @license    http://kohanaframework.org/license
  *
- * @property Github_Timestamp $due_on 
- * @property string $state 
- * @property integer $number 
- * @property string $description 
- * @property string $url 
- * @property integer $open_issues 
- * @property Github_Timestamp $created_at 
- * @property string $title 
- * @property Github_User $creator 
- * @property integer $closed_issues 
+ * @property Github_Timestamp $due_on
+ * @property string $state
+ * @property integer $number
+ * @property string $description
+ * @property string $url
+ * @property integer $open_issues
+ * @property Github_Timestamp $created_at
+ * @property string $title
+ * @property Github_User $creator
+ * @property integer $closed_issues
  */
 class Github_Repo_Milestone extends Github_Object
 {

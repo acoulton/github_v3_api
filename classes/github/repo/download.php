@@ -1,22 +1,22 @@
-<?php 
+<?php
 /**
- * <describe the class here>
- * 
+ * Holds the details of a repository package download
+ *
  * @package    GithubAPIv3
  * @category   Objects
  * @author     Andrew Coulton
  * @copyright  (c) 2011 Andrew Coulton
  * @license    http://kohanaframework.org/license
  *
- * @property integer $download_count 
- * @property string $description 
- * @property string $url 
- * @property Github_Timestamp $created_at 
- * @property integer $size 
- * @property string $content_type 
- * @property string $name 
- * @property integer $id 
- * @property string $html_url 
+ * @property integer $download_count
+ * @property string $description
+ * @property string $url
+ * @property Github_Timestamp $created_at
+ * @property integer $size
+ * @property string $content_type
+ * @property string $name
+ * @property integer $id
+ * @property string $html_url
  */
 class Github_Repo_Download extends Github_Object
 {
