@@ -1,22 +1,22 @@
-<?php 
+<?php
 /**
- * <describe the class here>
- * 
+ * Holds the details of a post-receive web or service hook for a repository
+ *
  * @package    GithubAPIv3
  * @category   Objects
  * @author     Andrew Coulton
  * @copyright  (c) 2011 Andrew Coulton
  * @license    http://kohanaframework.org/license
  *
- * @property Github_Timestamp $updated_at 
- * @property array $last_response 
- * @property string $url 
- * @property integer $active 
- * @property Github_Timestamp $created_at 
- * @property array $events 
- * @property string $name 
- * @property array $config 
- * @property integer $id 
+ * @property Github_Timestamp $updated_at
+ * @property array $last_response
+ * @property string $url
+ * @property integer $active
+ * @property Github_Timestamp $created_at
+ * @property array $events
+ * @property string $name
+ * @property array $config
+ * @property integer $id
  */
 class Github_Repo_Hook extends Github_Object
 {
