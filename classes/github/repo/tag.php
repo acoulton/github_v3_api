@@ -1,6 +1,6 @@
 <?php
 /**
- * <describe the class here>
+ * Holds the details of a repository tag
  *
  * @package    GithubAPIv3
  * @category   Objects
