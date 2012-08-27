@@ -5,6 +5,7 @@ return array (
     'headers' => array(
       'accept' => 'application/json',
       'content-type' => 'application/json',
+	  'content-length' => new Mimic_Request_Wildcard_Require,
     ),
     'query' => array(
       'page' => '1',
